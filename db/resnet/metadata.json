@@ -1,0 +1,12 @@
+{
+    "title": "ResNet from Scratch",
+    "category": "CNN",
+    "tags": [
+        "resnet",
+        "cnn",
+        "residual",
+        "skip-connections",
+        "imagenet"
+    ],
+    "difficulty": "Medium"
+}
