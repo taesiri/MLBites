@@ -1,0 +1,12 @@
+{
+    "title": "Custom Autograd Function",
+    "category": "Basics",
+    "tags": [
+        "autograd",
+        "custom",
+        "backward",
+        "gradient",
+        "silu"
+    ],
+    "difficulty": "Medium"
+}

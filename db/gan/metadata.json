@@ -1,0 +1,11 @@
+{
+    "title": "GAN (Generative Adversarial Network)",
+    "category": "Generative",
+    "tags": [
+        "gan",
+        "generative",
+        "discriminator",
+        "generator"
+    ],
+    "difficulty": "Medium"
+}

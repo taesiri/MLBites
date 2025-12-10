@@ -1,0 +1,12 @@
+{
+    "title": "Vision Transformer (ViT)",
+    "category": "Transformers",
+    "tags": [
+        "vit",
+        "vision",
+        "transformer",
+        "attention",
+        "image-classification"
+    ],
+    "difficulty": "Hard"
+}

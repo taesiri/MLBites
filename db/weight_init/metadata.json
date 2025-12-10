@@ -1,0 +1,12 @@
+{
+    "title": "Weight Initialization for CNNs",
+    "category": "Basics",
+    "tags": [
+        "initialization",
+        "cnn",
+        "xavier",
+        "kaiming",
+        "weights"
+    ],
+    "difficulty": "Easy"
+}
