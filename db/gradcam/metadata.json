@@ -1,0 +1,11 @@
+{
+    "title": "GradCAM for Model Explainability",
+    "category": "Practical",
+    "tags": [
+        "gradcam",
+        "explainability",
+        "visualization",
+        "interpretability"
+    ],
+    "difficulty": "Medium"
+}

@@ -1,0 +1,11 @@
+{
+    "title": "CLIP Linear Probe",
+    "category": "Practical",
+    "tags": [
+        "clip",
+        "linear-probe",
+        "transfer-learning",
+        "vision-language"
+    ],
+    "difficulty": "Medium"
+}

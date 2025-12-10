@@ -1,0 +1,12 @@
+{
+    "title": "Diffusion Transformer (DiT)",
+    "category": "Generative",
+    "tags": [
+        "diffusion",
+        "transformer",
+        "dit",
+        "denoising",
+        "generative"
+    ],
+    "difficulty": "Hard"
+}

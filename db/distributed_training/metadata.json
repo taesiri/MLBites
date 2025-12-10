@@ -1,0 +1,12 @@
+{
+    "title": "Distributed Training (DDP)",
+    "category": "Practical",
+    "tags": [
+        "distributed",
+        "ddp",
+        "multi-gpu",
+        "training",
+        "parallel"
+    ],
+    "difficulty": "Hard"
+}

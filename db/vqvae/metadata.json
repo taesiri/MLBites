@@ -1,0 +1,12 @@
+{
+    "title": "VQ-VAE with Transformer Prior",
+    "category": "Generative",
+    "tags": [
+        "vqvae",
+        "vector-quantization",
+        "transformer",
+        "codebook",
+        "generative"
+    ],
+    "difficulty": "Hard"
+}
