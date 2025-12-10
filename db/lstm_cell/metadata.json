@@ -1,0 +1,12 @@
+{
+    "title": "LSTM Cell from Scratch",
+    "category": "RNN",
+    "tags": [
+        "lstm",
+        "rnn",
+        "sequence",
+        "from-scratch",
+        "gates"
+    ],
+    "difficulty": "Medium"
+}

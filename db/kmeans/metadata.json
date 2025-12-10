@@ -1,0 +1,11 @@
+{
+    "title": "K-Means Clustering",
+    "category": "Classic ML",
+    "tags": [
+        "kmeans",
+        "clustering",
+        "unsupervised",
+        "from-scratch"
+    ],
+    "difficulty": "Medium"
+}

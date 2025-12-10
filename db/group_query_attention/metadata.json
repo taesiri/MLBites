@@ -1,0 +1,12 @@
+{
+    "title": "Group Query Attention (GQA)",
+    "category": "Transformers",
+    "tags": [
+        "attention",
+        "transformers",
+        "gqa",
+        "llm",
+        "efficiency"
+    ],
+    "difficulty": "Hard"
+}

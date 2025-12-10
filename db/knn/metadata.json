@@ -1,0 +1,11 @@
+{
+    "title": "K-Nearest Neighbors (kNN)",
+    "category": "Classic ML",
+    "tags": [
+        "knn",
+        "classification",
+        "from-scratch",
+        "distance"
+    ],
+    "difficulty": "Easy"
+}

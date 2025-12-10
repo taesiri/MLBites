@@ -1,0 +1,11 @@
+{
+    "title": "Custom Loss Functions (Huber Loss)",
+    "category": "Basics",
+    "tags": [
+        "loss",
+        "huber",
+        "custom",
+        "training"
+    ],
+    "difficulty": "Easy"
+}

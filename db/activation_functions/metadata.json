@@ -1,0 +1,12 @@
+{
+    "title": "Activation Functions from Scratch",
+    "category": "Basics",
+    "tags": [
+        "activation",
+        "relu",
+        "gelu",
+        "swish",
+        "from-scratch"
+    ],
+    "difficulty": "Easy"
+}

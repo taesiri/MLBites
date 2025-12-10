@@ -1,0 +1,11 @@
+{
+    "title": "PCA from Scratch",
+    "category": "Classic ML",
+    "tags": [
+        "pca",
+        "dimensionality-reduction",
+        "unsupervised",
+        "from-scratch"
+    ],
+    "difficulty": "Medium"
+}

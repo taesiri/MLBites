@@ -1,0 +1,12 @@
+{
+    "title": "GRU Cell from Scratch",
+    "category": "RNN",
+    "tags": [
+        "gru",
+        "rnn",
+        "sequence",
+        "from-scratch",
+        "gates"
+    ],
+    "difficulty": "Medium"
+}

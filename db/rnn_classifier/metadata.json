@@ -1,0 +1,12 @@
+{
+    "title": "RNN Text Classifier",
+    "category": "RNN",
+    "tags": [
+        "rnn",
+        "lstm",
+        "sequence",
+        "text-classification",
+        "neural-networks"
+    ],
+    "difficulty": "Easy"
+}

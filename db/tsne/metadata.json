@@ -1,0 +1,11 @@
+{
+    "title": "t-SNE from Scratch",
+    "category": "Classic ML",
+    "tags": [
+        "tsne",
+        "visualization",
+        "dimensionality-reduction",
+        "from-scratch"
+    ],
+    "difficulty": "Hard"
+}

@@ -1,0 +1,11 @@
+{
+    "title": "Autoencoder for Anomaly Detection",
+    "category": "Practical",
+    "tags": [
+        "autoencoder",
+        "anomaly-detection",
+        "unsupervised",
+        "reconstruction"
+    ],
+    "difficulty": "Medium"
+}

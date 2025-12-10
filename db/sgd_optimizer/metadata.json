@@ -1,0 +1,12 @@
+{
+    "title": "SGD Optimizer from Scratch",
+    "category": "Optimization",
+    "tags": [
+        "optimizer",
+        "sgd",
+        "from-scratch",
+        "momentum",
+        "training"
+    ],
+    "difficulty": "Easy"
+}

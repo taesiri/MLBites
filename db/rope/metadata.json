@@ -1,0 +1,12 @@
+{
+    "title": "Rotary Position Embedding (RoPE)",
+    "category": "Transformers",
+    "tags": [
+        "rope",
+        "positional-encoding",
+        "attention",
+        "llama",
+        "from-scratch"
+    ],
+    "difficulty": "Hard"
+}

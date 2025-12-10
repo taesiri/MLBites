@@ -1,0 +1,12 @@
+{
+    "title": "2D Convolution from Scratch",
+    "category": "CNN",
+    "tags": [
+        "cnn",
+        "convolution",
+        "from-scratch",
+        "numpy",
+        "fundamentals"
+    ],
+    "difficulty": "Hard"
+}

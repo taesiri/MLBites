@@ -1,0 +1,11 @@
+{
+    "title": "Layer Normalization from Scratch",
+    "category": "Basics",
+    "tags": [
+        "normalization",
+        "layer-norm",
+        "from-scratch",
+        "transformers"
+    ],
+    "difficulty": "Medium"
+}

@@ -1,0 +1,11 @@
+{
+    "title": "CNN Image Classifier",
+    "category": "CNN",
+    "tags": [
+        "cnn",
+        "convolution",
+        "image-classification",
+        "neural-networks"
+    ],
+    "difficulty": "Easy"
+}

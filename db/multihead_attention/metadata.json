@@ -1,0 +1,11 @@
+{
+    "title": "Multi-Head Attention",
+    "category": "Transformers",
+    "tags": [
+        "attention",
+        "transformers",
+        "self-attention",
+        "neural-networks"
+    ],
+    "difficulty": "Medium"
+}

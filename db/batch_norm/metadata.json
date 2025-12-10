@@ -1,0 +1,11 @@
+{
+    "title": "Batch Normalization from Scratch",
+    "category": "Basics",
+    "tags": [
+        "normalization",
+        "batch-norm",
+        "from-scratch",
+        "cnn"
+    ],
+    "difficulty": "Medium"
+}

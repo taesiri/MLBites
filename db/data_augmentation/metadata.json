@@ -1,0 +1,11 @@
+{
+    "title": "Data Augmentation with Transforms",
+    "category": "Data",
+    "tags": [
+        "augmentation",
+        "transforms",
+        "torchvision",
+        "training"
+    ],
+    "difficulty": "Easy"
+}
