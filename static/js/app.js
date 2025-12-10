@@ -386,6 +386,19 @@ function filterQuestions(searchTerm) {
 // ============================================
 
 function setupEventListeners() {
+    // Category header click handlers (collapsible)
+    document.querySelectorAll('.category-header').forEach(header => {
+        header.addEventListener('click', (e) => {
+            e.preventDefault();
+            const categoryGroup = header.closest('.category-group');
+            if (categoryGroup) {
+                categoryGroup.classList.toggle('collapsed');
+                const isExpanded = !categoryGroup.classList.contains('collapsed');
+                header.setAttribute('aria-expanded', isExpanded.toString());
+            }
+        });
+    });
+
     // Question click handlers
     document.querySelectorAll('.question-item').forEach(item => {
         item.addEventListener('click', () => {

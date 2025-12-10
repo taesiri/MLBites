@@ -65,12 +65,19 @@ async def index(request: Request):
     """Render the main page."""
     questions = get_all_questions()
     
+    # Difficulty order for sorting
+    difficulty_order = {"Easy": 0, "Medium": 1, "Hard": 2}
+    
     # Group questions by category
     categories: dict[str, list[QuestionListItem]] = {}
     for q in questions:
         if q.category not in categories:
             categories[q.category] = []
         categories[q.category].append(q)
+    
+    # Sort questions within each category by difficulty
+    for category in categories:
+        categories[category].sort(key=lambda q: difficulty_order.get(q.difficulty, 1))
     
     return templates.TemplateResponse(
         "index.html",
