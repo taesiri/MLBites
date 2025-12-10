@@ -1,0 +1,11 @@
+{
+    "title": "Logistic Regression with PyTorch",
+    "category": "Basics",
+    "tags": [
+        "classification",
+        "supervised",
+        "basics",
+        "neural-networks"
+    ],
+    "difficulty": "Easy"
+}

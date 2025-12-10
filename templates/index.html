@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MLBites - PyTorch Interview Questions</title>
+    <meta name="description" content="Practice PyTorch interview questions with interactive code editor">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+
+    <!-- Monaco Editor -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/monaco-editor/0.45.0/min/vs/loader.min.js"></script>
+
+    <!-- Marked for Markdown rendering -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
+
+    <!-- Highlight.js for code blocks in markdown -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
+
+
+    <!-- Custom styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-brand">
+            <div class="logo">
+                <span class="logo-icon">🔥</span>
+                <span class="logo-text">MLBites</span>
+            </div>
+            <span class="header-subtitle">PyTorch Interview Questions</span>
+        </div>
+        <div class="header-actions">
+            <a href="https://pytorch.org/docs/" target="_blank" class="header-link">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
+                    <polyline points="15 3 21 3 21 9"></polyline>
+                    <line x1="10" y1="14" x2="21" y2="3"></line>
+                </svg>
+                PyTorch Docs
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <div class="main-container">
+        <!-- Sidebar -->
+        <!-- Floating toggle when sidebar is hidden -->
+        <button class="sidebar-toggle-floating" id="sidebar-toggle-floating" title="Show Sidebar">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+        </button>
+
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <h2>Questions</h2>
+                <button class="sidebar-toggle" id="sidebar-toggle" title="Hide Sidebar">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"></polyline>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="search-container">
+                <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <path d="m21 21-4.35-4.35"></path>
+                </svg>
+                <input type="text" class="search-input" id="search-input" placeholder="Search by tags...">
+            </div>
+
+            <!-- Question List -->
+            <div class="question-list" id="question-list">
+                {% for category, questions in categories.items() %}
+                <div class="category-group">
+                    <div class="category-header">
+                        <span class="category-icon">📁</span>
+                        {{ category }}
+                    </div>
+                    <ul class="questions">
+                        {% for question in questions %}
+                        <li class="question-item" data-slug="{{ question.slug }}"
+                            data-tags="{{ question.tags | join(',') }}" data-category="{{ question.category }}">
+                            <div class="question-title">{{ question.title }}</div>
+                            <div class="question-meta">
+                                <span class="difficulty difficulty-{{ question.difficulty | lower }}">
+                                    {{ question.difficulty }}
+                                </span>
+                                <div class="tags">
+                                    {% for tag in question.tags[:2] %}
+                                    <span class="tag">{{ tag }}</span>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endfor %}
+            </div>
+        </aside>
+
+        <!-- Content Area -->
+        <main class="content" id="content">
+            <!-- Welcome Message (shown when no question selected) -->
+            <div class="welcome-screen" id="welcome-screen">
+                <div class="welcome-content">
+                    <div class="welcome-icon">🚀</div>
+                    <h1>Welcome to MLBites</h1>
+                    <p>Select a question from the sidebar to get started with PyTorch interview practice.</p>
+                    <div class="welcome-features">
+                        <div class="feature">
+                            <span class="feature-icon">📝</span>
+                            <span>Interactive Code Editor</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">💡</span>
+                            <span>View Solutions</span>
+                        </div>
+                        <div class="feature">
+                            <span class="feature-icon">🏷️</span>
+                            <span>Filter by Tags</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Split Panel (hidden until question selected) -->
+            <div class="split-container" id="split-container" style="display: none;">
+                <!-- Question Panel -->
+                <div class="panel question-panel" id="question-panel">
+                    <div class="panel-header">
+                        <h2 class="panel-title" id="question-title">Question</h2>
+                        <div class="panel-meta" id="question-meta"></div>
+                    </div>
+                    <div class="panel-content markdown-body" id="question-content">
+                        <!-- Markdown content will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Resizable Divider -->
+                <div class="resizer" id="resizer"></div>
+
+                <!-- Editor Panel -->
+                <div class="panel editor-panel" id="editor-panel">
+                    <div class="panel-header">
+                        <div class="panel-header-left">
+                            <h2 class="panel-title">Code Editor</h2>
+                            <span class="file-indicator" id="file-indicator">starting_point.py</span>
+                        </div>
+                        <div class="panel-actions">
+                            <button class="btn btn-reveal" id="reveal-btn">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2">
+                                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                    <circle cx="12" cy="12" r="3"></circle>
+                                </svg>
+                                <span id="reveal-btn-text">Reveal Solution</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="editor-container" id="editor-container">
+                        <!-- Monaco Editor will be mounted here -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Custom JavaScript -->
+    <script src="/static/js/app.js"></script>
+</body>
+
+</html>
