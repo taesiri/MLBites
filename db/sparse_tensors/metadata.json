@@ -1,0 +1,13 @@
+{
+    "title": "Sparse Tensors in PyTorch",
+    "category": "Practical",
+    "tags": [
+        "sparse",
+        "tensors",
+        "memory",
+        "efficiency",
+        "coo",
+        "csr"
+    ],
+    "difficulty": "Medium"
+}

@@ -1,0 +1,12 @@
+{
+    "title": "U-Net for Segmentation",
+    "category": "CNN",
+    "tags": [
+        "unet",
+        "segmentation",
+        "encoder-decoder",
+        "skip-connections",
+        "medical"
+    ],
+    "difficulty": "Medium"
+}
