@@ -1,0 +1,11 @@
+{
+    "title": "Contrastive Learning (SimCLR)",
+    "category": "Self-Supervised",
+    "tags": [
+        "contrastive",
+        "simclr",
+        "self-supervised",
+        "representation-learning"
+    ],
+    "difficulty": "Medium"
+}

@@ -1,0 +1,11 @@
+{
+    "title": "Knowledge Distillation",
+    "category": "Practical",
+    "tags": [
+        "distillation",
+        "compression",
+        "teacher-student",
+        "transfer"
+    ],
+    "difficulty": "Medium"
+}

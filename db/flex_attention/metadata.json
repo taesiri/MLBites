@@ -1,0 +1,11 @@
+{
+    "title": "FlexAttention Patterns",
+    "category": "Transformers",
+    "tags": [
+        "flex-attention",
+        "attention-patterns",
+        "masking",
+        "pytorch"
+    ],
+    "difficulty": "Medium"
+}

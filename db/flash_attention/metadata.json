@@ -1,0 +1,12 @@
+{
+    "title": "Flash Attention in Triton",
+    "category": "Transformers",
+    "tags": [
+        "flash-attention",
+        "triton",
+        "cuda",
+        "optimization",
+        "memory-efficient"
+    ],
+    "difficulty": "Hard"
+}

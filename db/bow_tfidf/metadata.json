@@ -1,0 +1,12 @@
+{
+    "title": "Bag-of-Words and TF-IDF",
+    "category": "NLP",
+    "tags": [
+        "bow",
+        "tfidf",
+        "text-representation",
+        "nlp",
+        "from-scratch"
+    ],
+    "difficulty": "Easy"
+}

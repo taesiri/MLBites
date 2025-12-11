@@ -1,0 +1,12 @@
+{
+    "title": "KV Cache for LLM Inference",
+    "category": "Transformers",
+    "tags": [
+        "kv-cache",
+        "inference",
+        "optimization",
+        "llm",
+        "autoregressive"
+    ],
+    "difficulty": "Medium"
+}
