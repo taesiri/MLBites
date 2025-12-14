@@ -12,11 +12,14 @@ const state = {
     showingSolution: false,
     startingCode: '',
     solutionCode: '',
+    solutionHtml: '',
     editor: null,
     editorChangeDisposable: null,
     isResizing: false,
     sidebarCollapsed: false,
     editorFullscreen: false,
+    questionFullscreen: false,
+    questionActiveTab: 'description',
     isProgrammaticEdit: false,
     drafts: {},
 };
@@ -30,10 +33,12 @@ const elements = {
     splitContainer: document.getElementById('split-container'),
     questionPanel: document.getElementById('question-panel'),
     editorPanel: document.getElementById('editor-panel'),
-    questionTitle: document.getElementById('question-title'),
     questionMeta: document.getElementById('question-meta'),
     questionTags: document.getElementById('question-tags'),
     questionContent: document.getElementById('question-content'),
+    tabDescription: document.getElementById('tab-description'),
+    tabSolution: document.getElementById('tab-solution'),
+    questionFullscreenBtn: document.getElementById('question-fullscreen-btn'),
     editorContainer: document.getElementById('editor-container'),
     toggleSolutionBtn: document.getElementById('toggle-solution-btn'),
     resetCodeBtn: document.getElementById('reset-code-btn'),
@@ -134,6 +139,10 @@ function updateSolutionToggleButton(showingSolution) {
 
 function setFullscreen(enabled) {
     state.editorFullscreen = enabled;
+    if (enabled) {
+        // Can't fullscreen both at once
+        setQuestionFullscreen(false);
+    }
     document.body.classList.toggle('editor-fullscreen', enabled);
 
     if (elements.fullscreenBtn) {
@@ -147,6 +156,87 @@ function setFullscreen(enabled) {
     setTimeout(() => {
         if (state.editor) state.editor.layout();
     }, 0);
+}
+
+function setQuestionFullscreen(enabled) {
+    state.questionFullscreen = enabled;
+    if (enabled) {
+        // Can't fullscreen both at once
+        setFullscreen(false);
+    }
+    document.body.classList.toggle('question-fullscreen', enabled);
+
+    if (elements.questionFullscreenBtn) {
+        elements.questionFullscreenBtn.classList.toggle('active', enabled);
+        elements.questionFullscreenBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+        elements.questionFullscreenBtn.title = enabled ? 'Exit fullscreen question' : 'Fullscreen question';
+        elements.questionFullscreenBtn.setAttribute(
+            'aria-label',
+            enabled ? 'Exit fullscreen question' : 'Fullscreen question'
+        );
+    }
+
+    // Let layout settle, then re-layout Monaco (if visible)
+    setTimeout(() => {
+        if (state.editor) state.editor.layout();
+    }, 0);
+}
+
+function escapeHtml(text) {
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
+function renderQuestionDescription() {
+    if (!state.currentQuestion) return;
+    elements.questionContent.innerHTML = state.currentQuestion.description_html;
+    elements.questionContent.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+}
+
+function renderQuestionSolution() {
+    const html = state.solutionHtml;
+    if (!html) {
+        elements.questionContent.innerHTML =
+            '<p>Written solution not available yet. Use the <strong>Show solution</strong> button in the editor panel for code.</p>';
+        return;
+    }
+
+    elements.questionContent.innerHTML = html;
+    elements.questionContent.querySelectorAll('pre code').forEach((block) => {
+        hljs.highlightElement(block);
+    });
+}
+
+async function setQuestionTab(tab) {
+    const next = tab === 'solution' ? 'solution' : 'description';
+    state.questionActiveTab = next;
+
+    if (elements.tabDescription) {
+        const isActive = next === 'description';
+        elements.tabDescription.classList.toggle('active', isActive);
+        elements.tabDescription.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    }
+    if (elements.tabSolution) {
+        const isActive = next === 'solution';
+        elements.tabSolution.classList.toggle('active', isActive);
+        elements.tabSolution.setAttribute('aria-selected', isActive ? 'true' : 'false');
+    }
+
+    if (next === 'description') {
+        renderQuestionDescription();
+        return;
+    }
+
+    if (!state.solutionCode) {
+        await loadSolution();
+    }
+    renderQuestionSolution();
 }
 
 async function runEditorFormat() {
@@ -490,9 +580,11 @@ async function loadQuestion(slug) {
         state.currentQuestion = question;
         state.startingCode = question.starting_code;
         state.solutionCode = '';
+        state.solutionHtml = '';
         state.showingSolution = false;
 
         displayQuestion(question);
+        await setQuestionTab('description');
 
         elements.welcomeScreen.style.display = 'none';
         elements.splitContainer.style.display = 'flex';
@@ -511,19 +603,26 @@ async function loadQuestion(slug) {
 }
 
 function displayQuestion(question) {
-    elements.questionTitle.textContent = question.title;
-
     const difficultyClass = `difficulty-${question.difficulty.toLowerCase()}`;
-    const tagsHtml = question.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
-
     elements.questionMeta.innerHTML = `<span class="difficulty ${difficultyClass}">${question.difficulty}</span>`;
-    elements.questionTags.innerHTML = tagsHtml;
 
-    elements.questionContent.innerHTML = question.description_html;
-
-    elements.questionContent.querySelectorAll('pre code').forEach((block) => {
-        hljs.highlightElement(block);
+    // Render tags as accessible, clickable chips (button elements)
+    elements.questionTags.innerHTML = '';
+    const tagContainer = elements.questionTags.closest('.panel-header-tags');
+    if (tagContainer) {
+        tagContainer.style.display = question.tags?.length ? '' : 'none';
+    }
+    question.tags.forEach((tag) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.className = 'tag';
+        btn.dataset.tag = tag;
+        btn.setAttribute('aria-label', `Filter questions by tag: ${tag}`);
+        btn.textContent = tag;
+        elements.questionTags.appendChild(btn);
     });
+
+    // Content is rendered by the active tab.
 }
 
 async function loadSolution() {
@@ -535,6 +634,7 @@ async function loadSolution() {
 
         const data = await response.json();
         state.solutionCode = data.solution_code;
+        state.solutionHtml = typeof data.solution_html === 'string' ? data.solution_html : '';
 
         return data.solution_code;
     } catch (error) {
@@ -680,11 +780,30 @@ function setupEventListeners() {
         });
     }
 
+    // Question panel: tabs
+    if (elements.tabDescription) {
+        elements.tabDescription.addEventListener('click', () => {
+            setQuestionTab('description');
+        });
+    }
+    if (elements.tabSolution) {
+        elements.tabSolution.addEventListener('click', () => {
+            setQuestionTab('solution');
+        });
+    }
+
+    // Question panel: fullscreen
+    if (elements.questionFullscreenBtn) {
+        elements.questionFullscreenBtn.addEventListener('click', () => {
+            setQuestionFullscreen(!state.questionFullscreen);
+        });
+    }
+
     // Escape exits editor fullscreen
     document.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape' && state.editorFullscreen) {
-            setFullscreen(false);
-        }
+        if (e.key !== 'Escape') return;
+        if (state.editorFullscreen) setFullscreen(false);
+        if (state.questionFullscreen) setQuestionFullscreen(false);
     });
 
     // Search input
@@ -698,6 +817,19 @@ function setupEventListeners() {
             filterQuestions('');
         }
     });
+
+    // Tag chip click -> filter sidebar search
+    if (elements.questionTags) {
+        elements.questionTags.addEventListener('click', (e) => {
+            const btn = e.target?.closest?.('button.tag');
+            const tag = btn?.dataset?.tag;
+            if (!tag) return;
+            if (!elements.searchInput) return;
+            elements.searchInput.value = tag;
+            filterQuestions(tag);
+            showToast(`Filtered by tag: ${tag}`, 'success');
+        });
+    }
 
     // Sidebar toggle
     if (elements.sidebarToggle) {

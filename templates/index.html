@@ -117,10 +117,34 @@
                 <div class="panel question-panel" id="question-panel">
                     <div class="panel-header">
                         <div class="panel-header-top">
-                            <h2 class="panel-title" id="question-title">Question</h2>
-                            <div class="panel-meta" id="question-meta"></div>
+                            <div class="panel-tabs" role="tablist" aria-label="Question tabs">
+                                <button class="panel-tab active" id="tab-description" type="button" role="tab"
+                                    aria-selected="true" aria-controls="question-content" data-tab="description">
+                                    Description
+                                </button>
+                                <button class="panel-tab" id="tab-solution" type="button" role="tab"
+                                    aria-selected="false" aria-controls="question-content" data-tab="solution">
+                                    Solution
+                                </button>
+                            </div>
+                            <div class="panel-header-actions">
+                                <div class="panel-meta" id="question-meta"></div>
+                                <button class="icon-btn icon-btn--sm" id="question-fullscreen-btn" type="button"
+                                    title="Fullscreen question" aria-label="Fullscreen question" aria-pressed="false">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                                        <path d="M16 3h3a2 2 0 0 1 2 2v3"></path>
+                                        <path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+                                        <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                                    </svg>
+                                </button>
+                            </div>
                         </div>
-                        <div class="tags panel-header-tags" id="question-tags"></div>
+                        <div class="panel-header-tags" aria-label="Question topics">
+                            <span class="panel-header-tags-label">Topics</span>
+                            <div class="tag-chips tags" id="question-tags"></div>
+                        </div>
                     </div>
                     <div class="panel-content markdown-body" id="question-content">
                         <!-- Markdown content will be rendered here -->

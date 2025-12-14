@@ -470,17 +470,63 @@ body {
 
 .tags {
     display: flex;
-    gap: 4px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
 .tag {
-    font-size: 0.65rem;
-    padding: 2px 6px;
-    background: var(--bg-tertiary);
+    appearance: none;
+    border: 1px solid rgba(88, 166, 255, 0.24);
+    background: rgba(88, 166, 255, 0.08);
     color: var(--text-secondary);
-    border-radius: 4px;
-    border: 1px solid var(--border-secondary);
+    font-family: inherit;
+    font-size: 0.72rem;
+    font-weight: 500;
+    line-height: 1;
+    padding: 6px 10px;
+    border-radius: 999px;
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast),
+        transform var(--transition-fast);
+    white-space: nowrap;
+}
+
+.tag::before {
+    content: '#';
+    color: var(--text-muted);
+    margin-right: 4px;
+}
+
+.tag:hover {
+    background: rgba(88, 166, 255, 0.14);
+    border-color: rgba(88, 166, 255, 0.45);
+    color: var(--text-primary);
+}
+
+.tag:active {
+    transform: translateY(1px);
+}
+
+.tag:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.22);
+    border-color: rgba(88, 166, 255, 0.6);
+}
+
+.panel-header-tags {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.panel-header-tags-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
 }
 
 /* ============================================
@@ -680,11 +726,6 @@ body {
     min-width: 0;
 }
 
-.question-panel #question-title {
-    flex: 1 1 auto;
-    min-width: 0;
-}
-
 .question-panel #question-meta {
     flex-shrink: 0;
 }
@@ -693,15 +734,62 @@ body {
     width: 100%;
 }
 
+.panel-header-actions {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.icon-btn--sm {
+    width: 32px;
+    height: 32px;
+    border-radius: var(--radius-md);
+}
+
+.panel-tabs {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.panel-tab {
+    appearance: none;
+    border: 1px solid transparent;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.panel-tab:hover {
+    background: rgba(88, 166, 255, 0.08);
+    color: var(--text-primary);
+}
+
+.panel-tab.active,
+.panel-tab[aria-selected="true"] {
+    background: rgba(88, 166, 255, 0.14);
+    border-color: rgba(88, 166, 255, 0.35);
+    color: var(--accent-primary);
+}
+
+.panel-tab:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.22);
+    border-color: rgba(88, 166, 255, 0.6);
+}
+
 /* When the question panel gets narrow (e.g., small window or resizer),
    truncate title and hide tags for a cleaner header. */
 @container questionpanel (max-width: 520px) {
-    .question-panel #question-title {
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-
     .question-panel .panel-header-tags {
         display: none;
     }
@@ -818,6 +906,36 @@ body.editor-fullscreen #editor-panel {
 }
 
 body.editor-fullscreen #editor-panel .panel-header {
+    border-radius: 0;
+}
+
+/* ============================================
+   Question Panel Fullscreen Mode
+   ============================================ */
+
+body.question-fullscreen #sidebar,
+body.question-fullscreen #sidebar-toggle-floating,
+body.question-fullscreen #editor-panel,
+body.question-fullscreen #resizer {
+    display: none !important;
+}
+
+body.question-fullscreen #question-panel {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: calc(100vh - var(--header-height));
+    max-width: none;
+    flex: none;
+    z-index: 200;
+    border-left: none;
+    border-right: none;
+}
+
+body.question-fullscreen #question-panel .panel-header {
     border-radius: 0;
 }
 

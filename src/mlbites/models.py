@@ -30,6 +30,7 @@ class QuestionSolution(BaseModel):
 
     slug: str
     solution_code: str
+    solution_html: str | None = None
 
 
 class QuestionListItem(BaseModel):

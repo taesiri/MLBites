@@ -163,7 +163,18 @@ async def get_solution(slug: str):
     with open(solution_file, "r") as f:
         solution_code = f.read()
 
-    return QuestionSolution(slug=slug, solution_code=solution_code)
+    # Optional written solution (markdown)
+    solution_md_file = question_dir / "solution.md"
+    solution_html = None
+    if solution_md_file.exists():
+        with open(solution_md_file, "r") as f:
+            solution_md = f.read()
+        md.reset()
+        solution_html = md.convert(solution_md)
+
+    return QuestionSolution(
+        slug=slug, solution_code=solution_code, solution_html=solution_html
+    )
 
 
 @app.get("/api/search")
