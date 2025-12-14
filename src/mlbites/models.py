@@ -5,7 +5,7 @@ from pydantic import BaseModel
 
 class QuestionMetadata(BaseModel):
     """Metadata for a question stored in metadata.json."""
-    
+
     slug: str
     title: str
     category: str
@@ -15,7 +15,7 @@ class QuestionMetadata(BaseModel):
 
 class QuestionDetail(BaseModel):
     """Full question details including content."""
-    
+
     slug: str
     title: str
     category: str
@@ -27,14 +27,14 @@ class QuestionDetail(BaseModel):
 
 class QuestionSolution(BaseModel):
     """Solution response."""
-    
+
     slug: str
     solution_code: str
 
 
 class QuestionListItem(BaseModel):
     """Question item for sidebar list."""
-    
+
     slug: str
     title: str
     category: str

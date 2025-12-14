@@ -13,9 +13,12 @@ const state = {
     startingCode: '',
     solutionCode: '',
     editor: null,
+    editorChangeDisposable: null,
     isResizing: false,
     sidebarCollapsed: false,
     editorFullscreen: false,
+    isProgrammaticEdit: false,
+    drafts: {},
 };
 
 // ============================================
@@ -42,11 +45,84 @@ const elements = {
     sidebarToggle: document.getElementById('sidebar-toggle'),
     sidebarToggleFloating: document.getElementById('sidebar-toggle-floating'),
     resizer: document.getElementById('resizer'),
+    toast: document.getElementById('toast'),
 };
 
 // ============================================
 // Editor Toolbar Helpers
 // ============================================
+
+let toastTimer = null;
+function showToast(message, variant = 'success', timeoutMs = 1800) {
+    if (!elements.toast) return;
+    if (toastTimer) clearTimeout(toastTimer);
+
+    elements.toast.textContent = message;
+    elements.toast.classList.remove('hidden', 'toast--success', 'toast--warning', 'toast--error');
+    elements.toast.classList.add(`toast--${variant}`);
+
+    toastTimer = setTimeout(() => {
+        elements.toast.classList.add('hidden');
+    }, timeoutMs);
+}
+
+const DRAFTS_STORAGE_KEY = 'mlbites:drafts:v1';
+let draftsSaveTimer = null;
+function loadDraftsFromStorage() {
+    try {
+        const raw = localStorage.getItem(DRAFTS_STORAGE_KEY);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (parsed && typeof parsed === 'object') {
+            state.drafts = parsed;
+        }
+    } catch {
+        // ignore
+    }
+}
+
+function saveDraftsToStorageDebounced() {
+    if (draftsSaveTimer) clearTimeout(draftsSaveTimer);
+    draftsSaveTimer = setTimeout(() => {
+        try {
+            localStorage.setItem(DRAFTS_STORAGE_KEY, JSON.stringify(state.drafts));
+        } catch {
+            // ignore (e.g., storage full)
+        }
+    }, 250);
+}
+
+function getDraft(slug) {
+    const v = state.drafts?.[slug];
+    return typeof v === 'string' ? v : null;
+}
+
+function setDraft(slug, code) {
+    if (!slug) return;
+    state.drafts[slug] = code;
+    saveDraftsToStorageDebounced();
+}
+
+function normalizeInvisibleWhitespace(text) {
+    return text
+        .replace(/\r\n/g, '\n')
+        .replace(/[ \t]+$/gm, '')
+        .replace(/\s+$/g, '');
+}
+
+function formatPythonClient(code) {
+    // Lightweight client-side formatter (no server, no Black):
+    // - normalize newlines
+    // - convert tabs to 4 spaces
+    // - trim trailing whitespace
+    // - collapse excessive blank lines (max 2 consecutive blank lines)
+    // - ensure exactly one trailing newline
+    let out = code.replace(/\r\n/g, '\n').replace(/\t/g, '    ');
+    out = out.replace(/[ \t]+$/gm, '');
+    out = out.replace(/\n{4,}/g, '\n\n\n');
+    out = out.replace(/\s*$/g, '\n');
+    return out;
+}
 
 function setEditorReadOnly(readOnly) {
     if (!state.editor) return;
@@ -80,33 +156,32 @@ function setFullscreen(enabled) {
 
 async function runEditorFormat() {
     if (!state.editor) return;
-
-    // Try Monaco's built-in formatter (may be a no-op for python)
-    try {
-        const action = state.editor.getAction && state.editor.getAction('editor.action.formatDocument');
-        if (action && typeof action.run === 'function') {
-            await action.run();
-            return;
-        }
-    } catch {
-        // fall through to basic cleanup
+    if (state.showingSolution) {
+        showToast('Switch to starter code to format.', 'warning');
+        return;
     }
 
-    // Fallback: basic whitespace cleanup so the button still "does something"
     const model = state.editor.getModel && state.editor.getModel();
     if (!model) return;
 
-    const value = model.getValue();
-    const cleaned = value
-        .replace(/\r\n/g, '\n')
-        .split('\n')
-        .map(line => line.replace(/[ \t]+$/g, ''))
-        .join('\n')
-        .replace(/\n*$/g, '\n');
+    const before = model.getValue();
+    const formatted = formatPythonClient(before);
 
-    if (cleaned !== value) {
-        model.pushEditOperations([], [{ range: model.getFullModelRange(), text: cleaned }], () => null);
+    if (formatted === before) {
+        showToast('No changes.', 'warning');
+        return;
     }
+
+    const whitespaceOnly =
+        normalizeInvisibleWhitespace(before) === normalizeInvisibleWhitespace(formatted);
+
+    state.editor.pushUndoStop();
+    state.editor.executeEdits('formatClient', [
+        { range: model.getFullModelRange(), text: formatted },
+    ]);
+    state.editor.pushUndoStop();
+
+    showToast(whitespaceOnly ? 'Formatted (whitespace only).' : 'Formatted.', 'success');
 }
 
 // ============================================
@@ -196,12 +271,26 @@ async function createEditor(code = '') {
         readOnly: false,
     });
 
+    if (state.editorChangeDisposable) {
+        try { state.editorChangeDisposable.dispose(); } catch { }
+        state.editorChangeDisposable = null;
+    }
+
+    state.editorChangeDisposable = state.editor.onDidChangeModelContent(() => {
+        if (!state.currentQuestion) return;
+        if (state.showingSolution) return;
+        if (state.isProgrammaticEdit) return;
+        setDraft(state.currentQuestion.slug, state.editor.getValue());
+    });
+
     return state.editor;
 }
 
 function updateEditorContent(code) {
     if (state.editor) {
+        state.isProgrammaticEdit = true;
         state.editor.setValue(code);
+        state.isProgrammaticEdit = false;
     }
 }
 
@@ -329,6 +418,11 @@ function initResizer() {
 
 async function loadQuestion(slug) {
     try {
+        // Persist current draft before switching questions
+        if (state.currentQuestion && state.editor && !state.showingSolution) {
+            setDraft(state.currentQuestion.slug, state.editor.getValue());
+        }
+
         const response = await fetch(`/api/questions/${slug}`);
         if (!response.ok) throw new Error('Failed to load question');
 
@@ -343,7 +437,8 @@ async function loadQuestion(slug) {
         elements.welcomeScreen.style.display = 'none';
         elements.splitContainer.style.display = 'flex';
 
-        await createEditor(question.starting_code);
+        const draft = getDraft(question.slug);
+        await createEditor(draft ?? question.starting_code);
 
         setEditorReadOnly(false);
         updateSolutionToggleButton(false);
@@ -461,13 +556,20 @@ function setupEventListeners() {
     if (elements.toggleSolutionBtn) {
         elements.toggleSolutionBtn.addEventListener('click', async () => {
             if (!state.currentQuestion) return;
+            const slug = state.currentQuestion.slug;
 
             if (state.showingSolution) {
-                updateEditorContent(state.startingCode);
+                const draft = getDraft(slug);
+                updateEditorContent(draft ?? state.startingCode);
                 state.showingSolution = false;
                 setEditorReadOnly(false);
                 updateSolutionToggleButton(false);
                 return;
+            }
+
+            // Save current in-progress code before showing solution
+            if (state.editor) {
+                setDraft(slug, state.editor.getValue());
             }
 
             if (!state.solutionCode) {
@@ -486,10 +588,13 @@ function setupEventListeners() {
     if (elements.resetCodeBtn) {
         elements.resetCodeBtn.addEventListener('click', () => {
             if (!state.currentQuestion) return;
+            const slug = state.currentQuestion.slug;
+            setDraft(slug, state.startingCode);
             updateEditorContent(state.startingCode);
             state.showingSolution = false;
             setEditorReadOnly(false);
             updateSolutionToggleButton(false);
+            showToast('Reset to default.', 'success');
         });
     }
 
@@ -540,6 +645,7 @@ function setupEventListeners() {
 // ============================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    loadDraftsFromStorage();
     setupEventListeners();
     initResizer();
 
