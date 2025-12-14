@@ -590,6 +590,9 @@ body {
     max-width: 60%;
     border-right: none;
     overflow: hidden;
+    /* Enable styling based on the panel's width (not viewport) */
+    container-type: inline-size;
+    container-name: questionpanel;
 }
 
 .editor-panel {
@@ -606,6 +609,102 @@ body {
     align-items: center;
     justify-content: space-between;
     flex-shrink: 0;
+}
+
+.editor-toolbar {
+    padding: 10px 12px;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.editor-toolbar-actions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.icon-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 34px;
+    height: 34px;
+    border-radius: var(--radius-md);
+    background: var(--bg-primary);
+    border: 1px solid var(--border-primary);
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+    padding: 0;
+}
+
+.icon-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.icon-btn:active {
+    transform: translateY(1px);
+}
+
+.icon-btn.active,
+.icon-btn[aria-pressed="true"] {
+    border-color: var(--accent-primary);
+    color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.12);
+}
+
+.icon-btn svg {
+    width: 16px;
+    height: 16px;
+}
+
+.icon-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.25);
+    border-color: var(--accent-primary);
+}
+
+.question-panel .panel-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.question-panel .panel-header-top {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 0;
+}
+
+.question-panel #question-title {
+    flex: 1 1 auto;
+    min-width: 0;
+}
+
+.question-panel #question-meta {
+    flex-shrink: 0;
+}
+
+.question-panel .panel-header-tags {
+    width: 100%;
+}
+
+/* When the question panel gets narrow (e.g., small window or resizer),
+   truncate title and hide tags for a cleaner header. */
+@container questionpanel (max-width: 520px) {
+    .question-panel #question-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    .question-panel .panel-header-tags {
+        display: none;
+    }
 }
 
 .panel-header-left {
@@ -660,6 +759,34 @@ body {
     overflow: hidden;
     min-height: 0;
     height: 100%;
+}
+
+/* ============================================
+   Editor Fullscreen Mode
+   ============================================ */
+
+body.editor-fullscreen #sidebar,
+body.editor-fullscreen #sidebar-toggle-floating,
+body.editor-fullscreen #question-panel,
+body.editor-fullscreen #resizer {
+    display: none !important;
+}
+
+body.editor-fullscreen #editor-panel {
+    position: fixed;
+    top: var(--header-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: calc(100vh - var(--header-height));
+    z-index: 200;
+    border-left: none;
+    border-right: none;
+}
+
+body.editor-fullscreen #editor-panel .panel-header {
+    border-radius: 0;
 }
 
 /* ============================================
@@ -882,6 +1009,18 @@ body {
         width: 100%;
         height: 6px;
         cursor: row-resize;
+    }
+
+    /* Hide tags under title on narrow screens */
+    .question-panel .panel-header-tags {
+        display: none;
+    }
+
+    /* Also truncate title on narrow screens (fallback if container queries unsupported) */
+    .question-panel #question-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
     }
 }
 

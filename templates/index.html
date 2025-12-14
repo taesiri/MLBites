@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MLBites - PyTorch Interview Questions</title>
-    <meta name="description" content="Practice PyTorch interview questions with interactive code editor">
+    <title>MLBites - Machine Learning Interview Questions</title>
+    <meta name="description" content="Practice machine learning interview questions with an interactive code editor">
 
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -38,17 +38,7 @@
                 <span class="logo-icon">🔥</span>
                 <span class="logo-text">MLBites</span>
             </div>
-            <span class="header-subtitle">PyTorch Interview Questions</span>
-        </div>
-        <div class="header-actions">
-            <a href="https://pytorch.org/docs/" target="_blank" class="header-link">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                    <polyline points="15 3 21 3 21 9"></polyline>
-                    <line x1="10" y1="14" x2="21" y2="3"></line>
-                </svg>
-                PyTorch Docs
-            </a>
+            <span class="header-subtitle">Machine Learning Interview Questions</span>
         </div>
     </header>
 
@@ -117,21 +107,7 @@
                 <div class="welcome-content">
                     <div class="welcome-icon">🚀</div>
                     <h1>Welcome to MLBites</h1>
-                    <p>Select a question from the sidebar to get started with PyTorch interview practice.</p>
-                    <div class="welcome-features">
-                        <div class="feature">
-                            <span class="feature-icon">📝</span>
-                            <span>Interactive Code Editor</span>
-                        </div>
-                        <div class="feature">
-                            <span class="feature-icon">💡</span>
-                            <span>View Solutions</span>
-                        </div>
-                        <div class="feature">
-                            <span class="feature-icon">🏷️</span>
-                            <span>Filter by Tags</span>
-                        </div>
-                    </div>
+                    <p>Select a question from the sidebar to get started with machine learning interview practice.</p>
                 </div>
             </div>
 
@@ -140,8 +116,11 @@
                 <!-- Question Panel -->
                 <div class="panel question-panel" id="question-panel">
                     <div class="panel-header">
-                        <h2 class="panel-title" id="question-title">Question</h2>
-                        <div class="panel-meta" id="question-meta"></div>
+                        <div class="panel-header-top">
+                            <h2 class="panel-title" id="question-title">Question</h2>
+                            <div class="panel-meta" id="question-meta"></div>
+                        </div>
+                        <div class="tags panel-header-tags" id="question-tags"></div>
                     </div>
                     <div class="panel-content markdown-body" id="question-content">
                         <!-- Markdown content will be rendered here -->
@@ -153,19 +132,46 @@
 
                 <!-- Editor Panel -->
                 <div class="panel editor-panel" id="editor-panel">
-                    <div class="panel-header">
-                        <div class="panel-header-left">
-                            <h2 class="panel-title">Code Editor</h2>
-                            <span class="file-indicator" id="file-indicator">starting_point.py</span>
-                        </div>
-                        <div class="panel-actions">
-                            <button class="btn btn-reveal" id="reveal-btn">
+                    <div class="panel-header editor-toolbar" aria-label="Editor toolbar">
+                        <div class="editor-toolbar-actions">
+                            <button class="icon-btn" id="toggle-solution-btn" type="button" title="Show solution"
+                                aria-label="Show solution" aria-pressed="false">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="2">
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                     <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
                                     <circle cx="12" cy="12" r="3"></circle>
                                 </svg>
-                                <span id="reveal-btn-text">Reveal Solution</span>
+                            </button>
+
+                            <button class="icon-btn" id="reset-code-btn" type="button" title="Reset to default"
+                                aria-label="Reset to default">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 12a9 9 0 1 1-2.64-6.36"></path>
+                                    <polyline points="21 3 21 9 15 9"></polyline>
+                                </svg>
+                            </button>
+
+                            <button class="icon-btn" id="format-code-btn" type="button" title="Autoformat"
+                                aria-label="Autoformat">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M4 6h16"></path>
+                                    <path d="M4 12h10"></path>
+                                    <path d="M4 18h16"></path>
+                                    <path d="M16 10l2 2-2 2"></path>
+                                </svg>
+                            </button>
+
+                            <button class="icon-btn" id="fullscreen-btn" type="button" title="Fullscreen"
+                                aria-label="Fullscreen" aria-pressed="false">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M8 3H5a2 2 0 0 0-2 2v3"></path>
+                                    <path d="M16 3h3a2 2 0 0 1 2 2v3"></path>
+                                    <path d="M8 21H5a2 2 0 0 1-2-2v-3"></path>
+                                    <path d="M16 21h3a2 2 0 0 0 2-2v-3"></path>
+                                </svg>
                             </button>
                         </div>
                     </div>

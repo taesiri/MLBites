@@ -15,6 +15,7 @@ const state = {
     editor: null,
     isResizing: false,
     sidebarCollapsed: false,
+    editorFullscreen: false,
 };
 
 // ============================================
@@ -28,11 +29,13 @@ const elements = {
     editorPanel: document.getElementById('editor-panel'),
     questionTitle: document.getElementById('question-title'),
     questionMeta: document.getElementById('question-meta'),
+    questionTags: document.getElementById('question-tags'),
     questionContent: document.getElementById('question-content'),
     editorContainer: document.getElementById('editor-container'),
-    fileIndicator: document.getElementById('file-indicator'),
-    revealBtn: document.getElementById('reveal-btn'),
-    revealBtnText: document.getElementById('reveal-btn-text'),
+    toggleSolutionBtn: document.getElementById('toggle-solution-btn'),
+    resetCodeBtn: document.getElementById('reset-code-btn'),
+    formatCodeBtn: document.getElementById('format-code-btn'),
+    fullscreenBtn: document.getElementById('fullscreen-btn'),
     searchInput: document.getElementById('search-input'),
     questionList: document.getElementById('question-list'),
     sidebar: document.getElementById('sidebar'),
@@ -40,6 +43,71 @@ const elements = {
     sidebarToggleFloating: document.getElementById('sidebar-toggle-floating'),
     resizer: document.getElementById('resizer'),
 };
+
+// ============================================
+// Editor Toolbar Helpers
+// ============================================
+
+function setEditorReadOnly(readOnly) {
+    if (!state.editor) return;
+    state.editor.updateOptions({ readOnly });
+}
+
+function updateSolutionToggleButton(showingSolution) {
+    if (!elements.toggleSolutionBtn) return;
+    elements.toggleSolutionBtn.classList.toggle('active', showingSolution);
+    elements.toggleSolutionBtn.setAttribute('aria-pressed', showingSolution ? 'true' : 'false');
+    elements.toggleSolutionBtn.title = showingSolution ? 'Show starter code' : 'Show solution';
+    elements.toggleSolutionBtn.setAttribute('aria-label', showingSolution ? 'Show starter code' : 'Show solution');
+}
+
+function setFullscreen(enabled) {
+    state.editorFullscreen = enabled;
+    document.body.classList.toggle('editor-fullscreen', enabled);
+
+    if (elements.fullscreenBtn) {
+        elements.fullscreenBtn.classList.toggle('active', enabled);
+        elements.fullscreenBtn.setAttribute('aria-pressed', enabled ? 'true' : 'false');
+        elements.fullscreenBtn.title = enabled ? 'Exit fullscreen' : 'Fullscreen';
+        elements.fullscreenBtn.setAttribute('aria-label', enabled ? 'Exit fullscreen' : 'Fullscreen');
+    }
+
+    // Let layout settle, then re-layout Monaco
+    setTimeout(() => {
+        if (state.editor) state.editor.layout();
+    }, 0);
+}
+
+async function runEditorFormat() {
+    if (!state.editor) return;
+
+    // Try Monaco's built-in formatter (may be a no-op for python)
+    try {
+        const action = state.editor.getAction && state.editor.getAction('editor.action.formatDocument');
+        if (action && typeof action.run === 'function') {
+            await action.run();
+            return;
+        }
+    } catch {
+        // fall through to basic cleanup
+    }
+
+    // Fallback: basic whitespace cleanup so the button still "does something"
+    const model = state.editor.getModel && state.editor.getModel();
+    if (!model) return;
+
+    const value = model.getValue();
+    const cleaned = value
+        .replace(/\r\n/g, '\n')
+        .split('\n')
+        .map(line => line.replace(/[ \t]+$/g, ''))
+        .join('\n')
+        .replace(/\n*$/g, '\n');
+
+    if (cleaned !== value) {
+        model.pushEditOperations([], [{ range: model.getFullModelRange(), text: cleaned }], () => null);
+    }
+}
 
 // ============================================
 // Monaco Editor Setup
@@ -277,8 +345,8 @@ async function loadQuestion(slug) {
 
         await createEditor(question.starting_code);
 
-        updateRevealButton(false);
-        elements.fileIndicator.textContent = 'starting_point.py';
+        setEditorReadOnly(false);
+        updateSolutionToggleButton(false);
 
         updateActiveQuestion(slug);
 
@@ -293,10 +361,8 @@ function displayQuestion(question) {
     const difficultyClass = `difficulty-${question.difficulty.toLowerCase()}`;
     const tagsHtml = question.tags.map(tag => `<span class="tag">${tag}</span>`).join('');
 
-    elements.questionMeta.innerHTML = `
-        <span class="difficulty ${difficultyClass}">${question.difficulty}</span>
-        <div class="tags">${tagsHtml}</div>
-    `;
+    elements.questionMeta.innerHTML = `<span class="difficulty ${difficultyClass}">${question.difficulty}</span>`;
+    elements.questionTags.innerHTML = tagsHtml;
 
     elements.questionContent.innerHTML = question.description_html;
 
@@ -322,10 +388,6 @@ async function loadSolution() {
     }
 }
 
-// ============================================
-// UI Updates
-// ============================================
-
 function updateActiveQuestion(slug) {
     document.querySelectorAll('.question-item').forEach(item => {
         item.classList.remove('active');
@@ -334,18 +396,6 @@ function updateActiveQuestion(slug) {
     const activeItem = document.querySelector(`.question-item[data-slug="${slug}"]`);
     if (activeItem) {
         activeItem.classList.add('active');
-    }
-}
-
-function updateRevealButton(showingSolution) {
-    if (showingSolution) {
-        elements.revealBtn.classList.add('active');
-        elements.revealBtnText.textContent = 'Show Starter Code';
-        elements.fileIndicator.textContent = 'solution.py';
-    } else {
-        elements.revealBtn.classList.remove('active');
-        elements.revealBtnText.textContent = 'Reveal Solution';
-        elements.fileIndicator.textContent = 'starting_point.py';
     }
 }
 
@@ -407,21 +457,60 @@ function setupEventListeners() {
         });
     });
 
-    // Reveal solution button
-    elements.revealBtn.addEventListener('click', async () => {
-        if (state.showingSolution) {
-            updateEditorContent(state.startingCode);
-            state.showingSolution = false;
-            updateRevealButton(false);
-        } else {
+    // Editor toolbar: toggle solution
+    if (elements.toggleSolutionBtn) {
+        elements.toggleSolutionBtn.addEventListener('click', async () => {
+            if (!state.currentQuestion) return;
+
+            if (state.showingSolution) {
+                updateEditorContent(state.startingCode);
+                state.showingSolution = false;
+                setEditorReadOnly(false);
+                updateSolutionToggleButton(false);
+                return;
+            }
+
             if (!state.solutionCode) {
                 await loadSolution();
             }
             if (state.solutionCode) {
                 updateEditorContent(state.solutionCode);
                 state.showingSolution = true;
-                updateRevealButton(true);
+                setEditorReadOnly(true);
+                updateSolutionToggleButton(true);
             }
+        });
+    }
+
+    // Editor toolbar: reset
+    if (elements.resetCodeBtn) {
+        elements.resetCodeBtn.addEventListener('click', () => {
+            if (!state.currentQuestion) return;
+            updateEditorContent(state.startingCode);
+            state.showingSolution = false;
+            setEditorReadOnly(false);
+            updateSolutionToggleButton(false);
+        });
+    }
+
+    // Editor toolbar: format
+    if (elements.formatCodeBtn) {
+        elements.formatCodeBtn.addEventListener('click', () => {
+            runEditorFormat();
+        });
+    }
+
+    // Editor toolbar: fullscreen
+    if (elements.fullscreenBtn) {
+        elements.fullscreenBtn.addEventListener('click', () => {
+            setFullscreen(!state.editorFullscreen);
+        });
+    }
+
+    // Escape exits editor fullscreen
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && state.editorFullscreen) {
+            setFullscreen(false);
         }
     });
 
@@ -453,6 +542,10 @@ function setupEventListeners() {
 document.addEventListener('DOMContentLoaded', () => {
     setupEventListeners();
     initResizer();
+
+    // Initialize toolbar state
+    updateSolutionToggleButton(false);
+    setFullscreen(false);
 
     // Pre-load Monaco Editor
     loadMonaco().then(() => {
