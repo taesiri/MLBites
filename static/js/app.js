@@ -110,13 +110,8 @@ function normalizeInvisibleWhitespace(text) {
         .replace(/\s+$/g, '');
 }
 
-function formatPythonClient(code) {
-    // Lightweight client-side formatter (no server, no Black):
-    // - normalize newlines
-    // - convert tabs to 4 spaces
-    // - trim trailing whitespace
-    // - collapse excessive blank lines (max 2 consecutive blank lines)
-    // - ensure exactly one trailing newline
+function basicWhitespaceCleanup(code) {
+    // Client-side fallback cleanup (not a full Python formatter)
     let out = code.replace(/\r\n/g, '\n').replace(/\t/g, '    ');
     out = out.replace(/[ \t]+$/gm, '');
     out = out.replace(/\n{4,}/g, '\n\n\n');
@@ -165,23 +160,88 @@ async function runEditorFormat() {
     if (!model) return;
 
     const before = model.getValue();
-    const formatted = formatPythonClient(before);
+    const slug = state.currentQuestion?.slug || 'unknown';
+    console.log('[format] start', { slug, chars: before.length });
 
-    if (formatted === before) {
-        showToast('No changes.', 'warning');
+    // Preferred: server-side Ruff formatter (no persistence)
+    try {
+        const resp = await fetch('/api/format/python', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                code: before,
+                filename: 'starting_point.py',
+                question_slug: slug,
+            }),
+        });
+
+        const text = await resp.text();
+        let data = null;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            // leave as null
+        }
+
+        console.log('[format] response', {
+            ok: resp.ok,
+            status: resp.status,
+            used_ruff: data?.used_ruff,
+            changed: data?.changed,
+            error: data?.error,
+            formatted_len: typeof data?.formatted_code === 'string' ? data.formatted_code.length : null,
+        });
+
+        if (resp.ok && data && typeof data.formatted_code === 'string') {
+            const formatted = data.formatted_code;
+            if (formatted !== before) {
+                const whitespaceOnly =
+                    normalizeInvisibleWhitespace(before) === normalizeInvisibleWhitespace(formatted);
+
+                state.editor.pushUndoStop();
+                state.editor.executeEdits('formatRuff', [
+                    { range: model.getFullModelRange(), text: formatted },
+                ]);
+                state.editor.pushUndoStop();
+
+                showToast(whitespaceOnly ? 'Formatted (whitespace only).' : 'Formatted (Ruff).', 'success');
+                console.log('[format] applied', { slug, whitespaceOnly });
+                return;
+            }
+
+            // Ruff ran but found nothing to change
+            if (data.used_ruff) {
+                showToast('No changes.', 'warning');
+                console.log('[format] no changes (ruff)', { slug });
+                return;
+            }
+        }
+
+        // Ruff unavailable or error
+        showToast('Formatter unavailable (ruff).', 'warning', 2600);
+        console.warn('[format] ruff unavailable', { slug, body: data });
+    } catch (e) {
+        console.warn('[format] request failed', e);
+        showToast('Formatter request failed.', 'warning', 2600);
+    }
+
+    // Fallback: basic cleanup so the button still has an effect
+    const cleaned = basicWhitespaceCleanup(before);
+    if (cleaned !== before) {
+        const whitespaceOnly =
+            normalizeInvisibleWhitespace(before) === normalizeInvisibleWhitespace(cleaned);
+        state.editor.pushUndoStop();
+        state.editor.executeEdits('formatCleanup', [
+            { range: model.getFullModelRange(), text: cleaned },
+        ]);
+        state.editor.pushUndoStop();
+        showToast(whitespaceOnly ? 'Formatted (whitespace only).' : 'Formatted (cleanup).', 'success');
+        console.log('[format] applied fallback cleanup', { slug, whitespaceOnly });
         return;
     }
 
-    const whitespaceOnly =
-        normalizeInvisibleWhitespace(before) === normalizeInvisibleWhitespace(formatted);
-
-    state.editor.pushUndoStop();
-    state.editor.executeEdits('formatClient', [
-        { range: model.getFullModelRange(), text: formatted },
-    ]);
-    state.editor.pushUndoStop();
-
-    showToast(whitespaceOnly ? 'Formatted (whitespace only).' : 'Formatted.', 'success');
+    showToast('No changes.', 'warning');
+    console.log('[format] no changes (fallback)', { slug });
 }
 
 // ============================================

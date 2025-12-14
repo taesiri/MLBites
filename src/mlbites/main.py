@@ -1,6 +1,10 @@
 """FastAPI application for MLBites - PyTorch Interview Questions."""
 
 import json
+import logging
+import shutil
+import subprocess
+import time
 from pathlib import Path
 
 import markdown
@@ -9,13 +13,21 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
-from .models import QuestionDetail, QuestionListItem, QuestionSolution
+from .models import (
+    FormatPythonRequest,
+    FormatPythonResponse,
+    QuestionDetail,
+    QuestionListItem,
+    QuestionSolution,
+)
 
 # Paths
 BASE_DIR = Path(__file__).resolve().parent.parent.parent
 DB_DIR = BASE_DIR / "db"
 TEMPLATES_DIR = BASE_DIR / "templates"
 STATIC_DIR = BASE_DIR / "static"
+
+logger = logging.getLogger("uvicorn.error")
 
 # FastAPI app
 app = FastAPI(
@@ -175,6 +187,93 @@ async def search_questions(tags: str = ""):
             filtered.append(q)
 
     return filtered
+
+
+def _run_ruff_format(
+    code: str, *, stdin_filename: str
+) -> tuple[str | None, str | None]:
+    """
+    Run `ruff format` on code passed via stdin.
+    Returns (formatted_code, error).
+    """
+    ruff_bin = shutil.which("ruff")
+    if not ruff_bin:
+        return None, "ruff not found on PATH"
+
+    # Ruff supports reading from stdin via '-' with --stdin-filename.
+    candidates: list[list[str]] = [
+        [ruff_bin, "format", "--stdin-filename", stdin_filename, "-"],
+        [ruff_bin, "format", "--stdin-filename", stdin_filename],
+    ]
+
+    last_err = None
+    for cmd in candidates:
+        try:
+            proc = subprocess.run(
+                cmd,
+                input=code,
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            if proc.returncode == 0 and proc.stdout:
+                return proc.stdout, None
+            # Some invocations may not emit stdout; treat that as failure.
+            last_err = (proc.stderr or "").strip() or f"ruff exited {proc.returncode}"
+        except Exception as e:  # noqa: BLE001
+            last_err = str(e)
+
+    return None, last_err or "ruff format failed"
+
+
+@app.post("/api/format/python", response_model=FormatPythonResponse)
+async def format_python(payload: FormatPythonRequest, request: Request):
+    """
+    Format Python code using Ruff (no persistence).
+    """
+    t0 = time.perf_counter()
+    client = request.client.host if request.client else "unknown"
+    q = payload.question_slug or "unknown"
+    logger.info(
+        "format_python request client=%s question=%s filename=%s bytes=%d",
+        client,
+        q,
+        payload.filename,
+        len(payload.code.encode("utf-8")),
+    )
+
+    formatted, err = _run_ruff_format(payload.code, stdin_filename=payload.filename)
+    dt_ms = (time.perf_counter() - t0) * 1000.0
+
+    if err or formatted is None:
+        logger.warning(
+            "format_python failed client=%s question=%s err=%s duration_ms=%.1f",
+            client,
+            q,
+            err,
+            dt_ms,
+        )
+        return FormatPythonResponse(
+            formatted_code=payload.code,
+            changed=False,
+            used_ruff=False,
+            error=err or "ruff format failed",
+        )
+
+    changed = formatted != payload.code
+    logger.info(
+        "format_python ok client=%s question=%s changed=%s duration_ms=%.1f",
+        client,
+        q,
+        changed,
+        dt_ms,
+    )
+    return FormatPythonResponse(
+        formatted_code=formatted,
+        changed=changed,
+        used_ruff=True,
+        error=None,
+    )
 
 
 if __name__ == "__main__":

@@ -40,3 +40,20 @@ class QuestionListItem(BaseModel):
     category: str
     tags: list[str]
     difficulty: str
+
+
+class FormatPythonRequest(BaseModel):
+    """Request to format Python code (no persistence)."""
+
+    code: str
+    filename: str = "main.py"
+    question_slug: str | None = None
+
+
+class FormatPythonResponse(BaseModel):
+    """Response for Python formatting."""
+
+    formatted_code: str
+    changed: bool
+    used_ruff: bool
+    error: str | None = None
