@@ -649,12 +649,20 @@ function setupEventListeners() {
         elements.resetCodeBtn.addEventListener('click', () => {
             if (!state.currentQuestion) return;
             const slug = state.currentQuestion.slug;
+            const ok = window.confirm(
+                'Reset your code to the default starter code?\n\nThis will discard your current edits for this question.'
+            );
+            if (!ok) {
+                console.log('[reset] cancelled', { slug });
+                return;
+            }
             setDraft(slug, state.startingCode);
             updateEditorContent(state.startingCode);
             state.showingSolution = false;
             setEditorReadOnly(false);
             updateSolutionToggleButton(false);
             showToast('Reset to default.', 'success');
+            console.log('[reset] applied', { slug });
         });
     }
 
