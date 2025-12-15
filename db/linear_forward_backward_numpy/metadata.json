@@ -1,0 +1,17 @@
+{
+    "title": "Linear (affine) forward/backward (NumPy)",
+    "category": "Basics",
+    "tags": [
+        "numpy",
+        "linear",
+        "affine",
+        "backprop",
+        "gradients",
+        "neural-networks"
+    ],
+    "difficulty": "Easy",
+    "relevant_questions": [
+        "layernorm_forward_backward_numpy",
+        "linear_regression_numpy"
+    ]
+}

@@ -1,0 +1,15 @@
+{
+    "title": "Softmax (NumPy)",
+    "category": "Basics",
+    "tags": [
+        "numpy",
+        "softmax",
+        "numerical-stability",
+        "classification",
+        "logits"
+    ],
+    "difficulty": "Easy",
+    "relevant_questions": [
+        "linear_forward_backward_numpy"
+    ]
+}

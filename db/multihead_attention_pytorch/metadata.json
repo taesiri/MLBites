@@ -1,0 +1,17 @@
+{
+    "title": "Multi-Head Attention (PyTorch)",
+    "category": "Transformers",
+    "tags": [
+        "pytorch",
+        "attention",
+        "multihead-attention",
+        "transformer",
+        "masking"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": [
+        "softmax_numpy",
+        "linear_forward_backward_numpy",
+        "layernorm_forward_backward_numpy"
+    ]
+}
