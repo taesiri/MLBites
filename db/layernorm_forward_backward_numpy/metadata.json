@@ -1,0 +1,13 @@
+{
+    "title": "LayerNorm forward/backward (NumPy)",
+    "category": "Basics",
+    "tags": [
+        "numpy",
+        "layernorm",
+        "normalization",
+        "backprop",
+        "gradients"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": []
+}
