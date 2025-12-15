@@ -17,6 +17,7 @@ It MUST contain exactly these files:
 - solution.md
 - solution.py
 - starting_point.py
+- tests.py
 
 Use lower_snake_case for <question_slug>, e.g. "linear_regression", "softmax_cross_entropy".
 
@@ -111,6 +112,48 @@ def <name>(...):
 
 ⸻
 
+## tests.py (STRICT)
+
+Each question package MUST include `tests.py` so we can automatically verify candidate solutions.
+
+**Goal**: deterministic, fast checks that validate correctness (including edge cases), plus optional numerical checks (e.g., finite-difference gradient checks) when relevant.
+
+`tests.py` MUST:
+- Be deterministic (seed RNGs).
+- Contain helper functions inside the same file (no extra files).
+- Avoid network / filesystem writes.
+- Contain NO `print()`s by default (the CLI runner will report pass/fail).
+- Fail by raising `AssertionError` with a helpful message.
+
+### Required interface
+
+`tests.py` MUST define:
+
+```python
+from __future__ import annotations
+
+from types import ModuleType
+
+def run_tests(candidate: ModuleType) -> None:
+    \"\"\"Run all tests against a candidate solution module.
+
+    Args:
+        candidate: a Python module that defines the required function(s)/class(es)
+            for this question (same signature as in starting_point.py).
+
+    Raises:
+        AssertionError: if any test fails.
+    \"\"\"
+    # TODO: implement tests
+    raise NotImplementedError
+```
+
+Notes:
+- `candidate` will typically be the user's code (or `solution.py`) loaded as a module.
+- If a question requires multiple functions (e.g., forward/backward), `run_tests` should validate all of them.
+
+⸻
+
 solution.py (INTERVIEW-FRIENDLY + MINIMAL)
 	•	Minimal reference implementation, readable in one sitting.
 	•	Deterministic, test-friendly:
@@ -148,10 +191,11 @@ Keep it short and practical.
 Final self-check (MUST DO)
 
 Before finishing:
-	1.	Ensure ./db/<question_slug>/ contains all 5 files.
+	1.	Ensure ./db/<question_slug>/ contains all 6 files.
 	2.	Ensure metadata.json has ONLY the 5 keys, a valid difficulty value, and a list for relevant_questions.
         Also ensure "tags" includes "numpy"/"pytorch" when those libs are allowed/used.
 	3.	Ensure the function/class signature matches in:
 question.md, starting_point.py, solution.py
 	4.	Ensure examples are deterministic and consistent with the solution.
 	5.	Ensure the solution is realistically doable in 20–30 minutes.
+	6.	Ensure `tests.py` runs and validates `solution.py` (deterministically).

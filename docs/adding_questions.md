@@ -12,6 +12,7 @@ db/
 │   ├── metadata.json      # Question metadata
 │   ├── question.md        # Problem description
 │   ├── starting_point.py  # Starter code for users
+│   ├── tests.py           # Deterministic verification tests (required)
 │   └── solution.py        # Reference solution
 ├── logistic_regression/
 │   └── ...
@@ -147,6 +148,29 @@ if __name__ == "__main__":
     # Same test code as starting_point.py
     result = your_function(test_input)
     print(f"Result: {result}")
+```
+
+### 6. Create `tests.py` (verification)
+
+Each question MUST include a `tests.py` so we can automatically validate a candidate solution.
+
+`tests.py` must define:
+
+```python
+from __future__ import annotations
+
+from types import ModuleType
+
+def run_tests(candidate: ModuleType) -> None:
+    # call candidate.your_function(...) and assert expected outputs
+    # raise AssertionError with a helpful message on failure
+    raise NotImplementedError
+```
+
+To run tests locally:
+
+```bash
+uv run python -m mlbites.verify your_question_name
 ```
 
 ## Best Practices
