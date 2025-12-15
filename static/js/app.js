@@ -51,7 +51,85 @@ const elements = {
     sidebarToggleFloating: document.getElementById('sidebar-toggle-floating'),
     resizer: document.getElementById('resizer'),
     toast: document.getElementById('toast'),
+    themeToggle: document.getElementById('theme-toggle'),
+    hljsTheme: document.getElementById('hljs-theme'),
 };
+
+// ============================================
+// Theme (Light/Dark)
+// ============================================
+
+const THEME_STORAGE_KEY = 'mlbites:theme:v1';
+
+function getStoredTheme() {
+    try {
+        const v = localStorage.getItem(THEME_STORAGE_KEY);
+        return v === 'light' || v === 'dark' ? v : null;
+    } catch {
+        return null;
+    }
+}
+
+function getSystemTheme() {
+    try {
+        return window.matchMedia && window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark';
+    } catch {
+        return 'dark';
+    }
+}
+
+function setStoredTheme(theme) {
+    try {
+        localStorage.setItem(THEME_STORAGE_KEY, theme);
+    } catch {
+        // ignore
+    }
+}
+
+function setHljsTheme(theme) {
+    if (!elements.hljsTheme) return;
+    // Keep versions consistent with index.html imports
+    const base = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/';
+    elements.hljsTheme.href = theme === 'light' ? `${base}github.min.css` : `${base}github-dark.min.css`;
+}
+
+function updateThemeToggleUi(theme) {
+    if (!elements.themeToggle) return;
+    const isLight = theme === 'light';
+    elements.themeToggle.textContent = isLight ? '☀️' : '🌙';
+    elements.themeToggle.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+    elements.themeToggle.title = isLight ? 'Switch to dark mode' : 'Switch to light mode';
+    elements.themeToggle.setAttribute('aria-label', elements.themeToggle.title);
+}
+
+function applyTheme(theme) {
+    const next = theme === 'light' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    setHljsTheme(next);
+    updateThemeToggleUi(next);
+
+    // Monaco theme (if available)
+    try {
+        if (typeof monaco !== 'undefined' && monaco?.editor?.setTheme) {
+            monaco.editor.setTheme(next === 'light' ? 'mlbites-light' : 'mlbites-dark');
+        }
+    } catch {
+        // ignore
+    }
+}
+
+function toggleTheme() {
+    const current = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+    const next = current === 'light' ? 'dark' : 'light';
+    setStoredTheme(next);
+    applyTheme(next);
+}
+
+function initTheme() {
+    const stored = getStoredTheme();
+    const initial = stored ?? getSystemTheme();
+    applyTheme(initial);
+}
 
 // ============================================
 // Editor Toolbar Helpers
@@ -381,6 +459,31 @@ function loadMonaco() {
                         }
                     });
 
+                    monaco.editor.defineTheme('mlbites-light', {
+                        base: 'vs',
+                        inherit: true,
+                        rules: [
+                            { token: 'comment', foreground: '6e7781', fontStyle: 'italic' },
+                            { token: 'keyword', foreground: 'cf222e' },
+                            { token: 'string', foreground: '0a3069' },
+                            { token: 'number', foreground: '0550ae' },
+                            { token: 'type', foreground: '8250df' },
+                            { token: 'function', foreground: '0969da' },
+                        ],
+                        colors: {
+                            'editor.background': '#ffffff',
+                            'editor.foreground': '#24292f',
+                            'editor.lineHighlightBackground': '#f6f8fa',
+                            'editorLineNumber.foreground': '#8c959f',
+                            'editorLineNumber.activeForeground': '#24292f',
+                            'editor.selectionBackground': '#add6ff',
+                            'editor.inactiveSelectionBackground': '#add6ff66',
+                            'editorCursor.foreground': '#0969da',
+                            'editorIndentGuide.background': '#d0d7de',
+                            'editorIndentGuide.activeBackground': '#8c959f',
+                        }
+                    });
+
                     monacoReady = true;
                     console.log('Monaco Editor loaded successfully');
                     resolve();
@@ -403,7 +506,7 @@ async function createEditor(code = '') {
     state.editor = monaco.editor.create(elements.editorContainer, {
         value: code,
         language: 'python',
-        theme: 'mlbites-dark',
+        theme: document.documentElement.getAttribute('data-theme') === 'light' ? 'mlbites-light' : 'mlbites-dark',
         fontSize: 14,
         fontFamily: "'JetBrains Mono', monospace",
         lineNumbers: 'on',
@@ -691,6 +794,19 @@ function filterQuestions(searchTerm) {
 // ============================================
 
 function setupEventListeners() {
+    // Theme toggle (logo icon)
+    if (elements.themeToggle) {
+        elements.themeToggle.addEventListener('click', () => {
+            toggleTheme();
+        });
+        elements.themeToggle.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                toggleTheme();
+            }
+        });
+    }
+
     // Category header click handlers (collapsible)
     document.querySelectorAll('.category-header').forEach(header => {
         header.addEventListener('click', (e) => {
@@ -846,6 +962,7 @@ function setupEventListeners() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDraftsFromStorage();
+    initTheme();
     setupEventListeners();
     initResizer();
 
@@ -856,5 +973,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Pre-load Monaco Editor
     loadMonaco().then(() => {
         console.log('Monaco pre-loaded');
+        // Ensure Monaco theme matches current UI theme
+        const theme = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+        applyTheme(theme);
     });
 });

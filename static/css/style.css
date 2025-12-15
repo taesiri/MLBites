@@ -51,6 +51,32 @@
     --radius-lg: 12px;
 }
 
+/* Light theme overrides (toggle via html[data-theme="light"]) */
+html[data-theme="light"] {
+    --bg-primary: #ffffff;
+    --bg-secondary: #f6f8fa;
+    --bg-tertiary: #ffffff;
+    --bg-hover: #f3f4f6;
+    --bg-active: rgba(9, 105, 218, 0.12);
+
+    --border-primary: #d0d7de;
+    --border-secondary: #d8dee4;
+
+    --text-primary: #24292f;
+    --text-secondary: #57606a;
+    --text-muted: #6e7781;
+
+    --accent-primary: #0969da;
+    --accent-secondary: #0550ae;
+
+    --gradient-header: linear-gradient(90deg, #ffffff 0%, #f6f8fa 100%);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 4px 10px rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 16px 40px rgba(0, 0, 0, 0.14);
+    --shadow-glow: 0 0 20px rgba(9, 105, 218, 0.25);
+}
+
 /* Reset & Base */
 *,
 *::before,
@@ -111,6 +137,36 @@ body {
 
 .logo-icon {
     font-size: 1.5rem;
+    cursor: pointer;
+    user-select: none;
+    -webkit-user-select: none;
+    border: 1px solid transparent;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 38px;
+    border-radius: var(--radius-md);
+    line-height: 1;
+    transition: background var(--transition-fast), color var(--transition-fast), transform var(--transition-fast);
+}
+
+.logo-icon:hover {
+    background: var(--bg-tertiary);
+}
+
+.logo-icon:active {
+    transform: translateY(1px);
+}
+
+.logo-icon:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.25);
+    border-color: var(--accent-primary);
+}
+
+html[data-theme="light"] .logo-icon:focus-visible {
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.22);
 }
 
 .logo-text {

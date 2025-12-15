@@ -21,7 +21,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/11.1.1/marked.min.js"></script>
 
     <!-- Highlight.js for code blocks in markdown -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <link id="hljs-theme" rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/python.min.js"></script>
 
@@ -35,7 +36,8 @@
     <header class="header">
         <div class="header-brand">
             <div class="logo">
-                <span class="logo-icon">🔥</span>
+                <span class="logo-icon" id="theme-toggle" role="button" tabindex="0" aria-label="Toggle theme"
+                    aria-pressed="false" title="Toggle theme">🔥</span>
                 <span class="logo-text">MLBites</span>
             </div>
             <span class="header-subtitle">Machine Learning Interview Questions</span>
