@@ -880,8 +880,10 @@ function initTerminalResizer() {
     const onMouseMove = (e) => {
         if (!state.isTerminalResizing) return;
         const dy = e.clientY - startY;
-        // dragging resizer down increases terminal; up decreases
-        const nextHeight = Math.max(minHeight, Math.min(maxHeight, startHeight + dy));
+        // Resizer is ABOVE the terminal panel:
+        // - drag UP => increase terminal height
+        // - drag DOWN => decrease terminal height
+        const nextHeight = Math.max(minHeight, Math.min(maxHeight, startHeight - dy));
         state.terminalHeightPx = nextHeight;
         elements.terminalPanel.style.height = `${nextHeight}px`;
         if (state.editor) state.editor.layout();
@@ -917,7 +919,7 @@ function initTerminalResizer() {
         if (!state.isTerminalResizing) return;
         const touch = e.touches[0];
         const dy = touch.clientY - startY;
-        const nextHeight = Math.max(minHeight, Math.min(maxHeight, startHeight + dy));
+        const nextHeight = Math.max(minHeight, Math.min(maxHeight, startHeight - dy));
         state.terminalHeightPx = nextHeight;
         elements.terminalPanel.style.height = `${nextHeight}px`;
         if (state.editor) state.editor.layout();
