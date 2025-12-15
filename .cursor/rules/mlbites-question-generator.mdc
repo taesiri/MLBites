@@ -30,15 +30,22 @@ Write valid JSON (no comments, no trailing commas). It MUST match this exact str
   "title": "<Human readable title>",
   "category": "<Category name>",
   "tags": ["tag1", "tag2", ...],
-  "difficulty": "Easy" | "Medium" | "Hard"
+  "difficulty": "Easy" | "Medium" | "Hard",
+  "relevant_questions": ["other_question_slug_1", "other_question_slug_2"]
 }
 
 Rules:
-- Only these 4 keys. No extras.
+- Only these 5 keys. No extras.
 - "title": short and specific.
 - "category": one of your existing categories (if unclear, default to "Basics").
 - "tags": 3–8 lowercase tags, kebab-case or simple words; be consistent.
+  - MUST include "numpy" if the question allows/uses NumPy.
+  - MUST include "pytorch" if the question allows/uses PyTorch / torch.
 - "difficulty": choose based on expected 20–30 minute implementation.
+- "relevant_questions": list of related question slugs (folders under ./db/) to help build future "recommended next" flows.
+  - This field will NOT be shown on the website for now.
+  - Use an empty list [] if none.
+  - Prefer 0–5 items, and only include slugs that already exist in the repo.
 
 ---
 
@@ -71,12 +78,6 @@ Bullets describing:
 
 ## Examples
 Provide at least 2 deterministic examples with expected outputs.
-
-## Edge Cases
-List key edge cases the implementation must handle.
-
-## What We Evaluate
-Bulleted acceptance criteria describing correctness (behavioral, not test-internals).
 
 ---
 
@@ -115,10 +116,8 @@ solution.py (INTERVIEW-FRIENDLY + MINIMAL)
 	•	Deterministic, test-friendly:
 	•	no prints
 	•	no input()
-	•	no randomness unless explicitly required and seeded
 	•	Use clear variable names and straightforward steps.
 	•	Include type hints and a concise docstring.
-	•	Handle every edge case listed in question.md.
 	•	Avoid unnecessary abstractions/classes.
 	•	Prefer stdlib; allow numpy/torch only if the question requires it.
 
@@ -150,28 +149,9 @@ Final self-check (MUST DO)
 
 Before finishing:
 	1.	Ensure ./db/<question_slug>/ contains all 5 files.
-	2.	Ensure metadata.json has ONLY the 4 keys and valid difficulty value.
+	2.	Ensure metadata.json has ONLY the 5 keys, a valid difficulty value, and a list for relevant_questions.
+        Also ensure "tags" includes "numpy"/"pytorch" when those libs are allowed/used.
 	3.	Ensure the function/class signature matches in:
 question.md, starting_point.py, solution.py
 	4.	Ensure examples are deterministic and consistent with the solution.
 	5.	Ensure the solution is realistically doable in 20–30 minutes.
-
-## Optional but very nice: a slash command
-
-`./.cursor/commands/new-mlbite.md`
-
-```md
-# /new-mlbite
-
-Create a new MLBites question package under ./db/<question_slug>/.
-
-Input: "$USER_REQUEST" (e.g. "Implement logistic regression gradient descent").
-
-You MUST:
-- Create ./db/<question_slug>/ with 5 files:
-  metadata.json, question.md, solution.md, solution.py, starting_point.py
-- Follow the "MLBites Question Package Rule (STRICT)" exactly.
-- Keep the implementation interview-friendly (20–30 minutes).
-- Use deterministic examples and minimal dependencies.
-
-If you want, paste one of your existing question.md + solution.py pairs and I’ll tune the writing style (tone, formatting, how “PyTorch-y” you want it, etc.) to match your existing dataset perfectly.
