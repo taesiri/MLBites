@@ -16,12 +16,15 @@ const state = {
     editor: null,
     editorChangeDisposable: null,
     isResizing: false,
+    isTerminalResizing: false,
     sidebarCollapsed: false,
     editorFullscreen: false,
     questionFullscreen: false,
     questionActiveTab: 'description',
     isProgrammaticEdit: false,
     drafts: {},
+    terminalVisible: false,
+    terminalHeightPx: 180,
 };
 
 // ============================================
@@ -44,6 +47,13 @@ const elements = {
     resetCodeBtn: document.getElementById('reset-code-btn'),
     formatCodeBtn: document.getElementById('format-code-btn'),
     fullscreenBtn: document.getElementById('fullscreen-btn'),
+    runCodeBtn: document.getElementById('run-code-btn'),
+    toggleTerminalBtn: document.getElementById('toggle-terminal-btn'),
+    terminalPanel: document.getElementById('terminal-panel'),
+    terminalResizer: document.getElementById('terminal-resizer'),
+    terminalOutput: document.getElementById('terminal-output'),
+    terminalStatus: document.getElementById('terminal-status'),
+    clearTerminalBtn: document.getElementById('clear-terminal-btn'),
     searchInput: document.getElementById('search-input'),
     questionList: document.getElementById('question-list'),
     sidebar: document.getElementById('sidebar'),
@@ -54,6 +64,183 @@ const elements = {
     themeToggle: document.getElementById('theme-toggle'),
     hljsTheme: document.getElementById('hljs-theme'),
 };
+
+// ============================================
+// Terminal / Output Panel
+// ============================================
+
+const TERMINAL_HEIGHT_STORAGE_KEY = 'mlbites:terminalHeight:v1';
+
+function loadTerminalPrefs() {
+    try {
+        const raw = localStorage.getItem(TERMINAL_HEIGHT_STORAGE_KEY);
+        const v = raw ? Number(raw) : NaN;
+        if (Number.isFinite(v) && v >= 80 && v <= 800) {
+            state.terminalHeightPx = v;
+        }
+    } catch {
+        // ignore
+    }
+}
+
+function saveTerminalHeight(heightPx) {
+    try {
+        localStorage.setItem(TERMINAL_HEIGHT_STORAGE_KEY, String(heightPx));
+    } catch {
+        // ignore
+    }
+}
+
+function setTerminalStatus(status, label) {
+    if (!elements.terminalStatus) return;
+    const normalized = status || 'idle';
+    const text = label || 'Idle';
+    elements.terminalStatus.textContent = text;
+    elements.terminalStatus.classList.remove(
+        'terminal-status--idle',
+        'terminal-status--running',
+        'terminal-status--pass',
+        'terminal-status--fail',
+        'terminal-status--error',
+        'terminal-status--timeout'
+    );
+    elements.terminalStatus.classList.add(`terminal-status--${normalized}`);
+}
+
+function setTerminalOutput(text) {
+    if (!elements.terminalOutput) return;
+    elements.terminalOutput.textContent = text || '';
+}
+
+function setTerminalVisible(visible, { force = false } = {}) {
+    const next = force ? !!visible : !!visible;
+    state.terminalVisible = next;
+
+    if (elements.toggleTerminalBtn) {
+        elements.toggleTerminalBtn.setAttribute('aria-pressed', next ? 'true' : 'false');
+        elements.toggleTerminalBtn.title = next ? 'Hide output' : 'Show output';
+        elements.toggleTerminalBtn.setAttribute('aria-label', elements.toggleTerminalBtn.title);
+    }
+
+    if (!elements.terminalPanel || !elements.terminalResizer) return;
+
+    elements.terminalPanel.classList.toggle('hidden', !next);
+    elements.terminalResizer.classList.toggle('hidden', !next);
+    elements.terminalPanel.style.height = next ? `${state.terminalHeightPx}px` : '';
+
+    // Re-layout Monaco after the DOM changes
+    setTimeout(() => {
+        if (state.editor) state.editor.layout();
+    }, 0);
+}
+
+function clearTerminal() {
+    setTerminalStatus('idle', 'Idle');
+    setTerminalOutput('');
+}
+
+function formatRunResult({ status, duration_ms, stdout, stderr }) {
+    const dur = Number.isFinite(duration_ms) ? `${Math.round(duration_ms)}ms` : '';
+    const upper = String(status || 'error').toUpperCase();
+    const lines = [];
+    lines.push(`=== RESULT: ${upper}${dur ? ` (${dur})` : ''} ===`);
+    if (stdout) {
+        lines.push('');
+        lines.push('--- stdout ---');
+        lines.push(stdout.trimEnd());
+    }
+    if (stderr) {
+        lines.push('');
+        lines.push('--- stderr ---');
+        lines.push(stderr.trimEnd());
+    }
+    return lines.join('\n') + '\n';
+}
+
+async function runCurrentCode() {
+    if (!state.currentQuestion) {
+        showToast('Select a question first.', 'warning');
+        return;
+    }
+    if (!state.editor) {
+        showToast('Editor not ready yet.', 'warning');
+        return;
+    }
+
+    const slug = state.currentQuestion.slug;
+    const code = state.editor.getValue();
+
+    // Show output panel immediately so the user sees progress
+    setTerminalVisible(true, { force: true });
+    setTerminalStatus('running', 'Running…');
+    setTerminalOutput('Running tests...\n');
+
+    if (elements.runCodeBtn) {
+        elements.runCodeBtn.disabled = true;
+        elements.runCodeBtn.setAttribute('aria-busy', 'true');
+    }
+
+    try {
+        const resp = await fetch('/api/run', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ question_slug: slug, code }),
+        });
+
+        const text = await resp.text();
+        let data = null;
+        try {
+            data = JSON.parse(text);
+        } catch {
+            data = null;
+        }
+
+        if (!resp.ok || !data) {
+            setTerminalStatus('error', 'Error');
+            setTerminalOutput(`Failed to run.\n\nHTTP ${resp.status}\n${text}\n`);
+            showToast('Run failed.', 'error', 2600);
+            return;
+        }
+
+        const status = data.status || 'error';
+        const durationMs = data.duration_ms;
+        const stdout = typeof data.stdout === 'string' ? data.stdout : '';
+        const stderr = typeof data.stderr === 'string' ? data.stderr : '';
+
+        if (status === 'pass') {
+            setTerminalStatus('pass', 'PASS');
+            showToast('All tests passed.', 'success');
+        } else if (status === 'fail') {
+            setTerminalStatus('fail', 'FAIL');
+            showToast('Tests failed.', 'warning', 2400);
+        } else if (status === 'timeout') {
+            setTerminalStatus('timeout', 'TIMEOUT');
+            showToast('Run timed out.', 'warning', 2600);
+        } else {
+            setTerminalStatus('error', 'ERROR');
+            showToast('Run error.', 'error', 2600);
+        }
+
+        setTerminalOutput(
+            formatRunResult({
+                status,
+                duration_ms: durationMs,
+                stdout,
+                stderr,
+            })
+        );
+    } catch (e) {
+        console.error('[run] request failed', e);
+        setTerminalStatus('error', 'Error');
+        setTerminalOutput(`Request failed.\n\n${String(e)}\n`);
+        showToast('Run request failed.', 'error', 2600);
+    } finally {
+        if (elements.runCodeBtn) {
+            elements.runCodeBtn.disabled = false;
+            elements.runCodeBtn.removeAttribute('aria-busy');
+        }
+    }
+}
 
 // ============================================
 // Theme (Light/Dark)
@@ -665,6 +852,86 @@ function initResizer() {
     });
 }
 
+function initTerminalResizer() {
+    if (!elements.terminalResizer) return;
+    if (!elements.terminalPanel) return;
+    if (!elements.editorPanel) return;
+
+    let startY = 0;
+    let startHeight = 0;
+
+    const minHeight = 80;
+    const maxHeight = 800;
+
+    const onMouseDown = (e) => {
+        if (!state.terminalVisible) return;
+        e.preventDefault();
+        state.isTerminalResizing = true;
+        startY = e.clientY;
+        startHeight = elements.terminalPanel.offsetHeight || state.terminalHeightPx;
+
+        document.body.classList.add('no-select');
+        elements.terminalResizer.classList.add('resizing');
+
+        document.addEventListener('mousemove', onMouseMove);
+        document.addEventListener('mouseup', onMouseUp);
+    };
+
+    const onMouseMove = (e) => {
+        if (!state.isTerminalResizing) return;
+        const dy = e.clientY - startY;
+        // dragging resizer down increases terminal; up decreases
+        const nextHeight = Math.max(minHeight, Math.min(maxHeight, startHeight + dy));
+        state.terminalHeightPx = nextHeight;
+        elements.terminalPanel.style.height = `${nextHeight}px`;
+        if (state.editor) state.editor.layout();
+    };
+
+    const onMouseUp = () => {
+        if (!state.isTerminalResizing) return;
+        state.isTerminalResizing = false;
+        document.body.classList.remove('no-select');
+        elements.terminalResizer.classList.remove('resizing');
+
+        saveTerminalHeight(state.terminalHeightPx);
+
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    elements.terminalResizer.addEventListener('mousedown', onMouseDown);
+
+    // Touch support
+    elements.terminalResizer.addEventListener('touchstart', (e) => {
+        if (!state.terminalVisible) return;
+        e.preventDefault();
+        const touch = e.touches[0];
+        state.isTerminalResizing = true;
+        startY = touch.clientY;
+        startHeight = elements.terminalPanel.offsetHeight || state.terminalHeightPx;
+        document.body.classList.add('no-select');
+        elements.terminalResizer.classList.add('resizing');
+    });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!state.isTerminalResizing) return;
+        const touch = e.touches[0];
+        const dy = touch.clientY - startY;
+        const nextHeight = Math.max(minHeight, Math.min(maxHeight, startHeight + dy));
+        state.terminalHeightPx = nextHeight;
+        elements.terminalPanel.style.height = `${nextHeight}px`;
+        if (state.editor) state.editor.layout();
+    });
+
+    document.addEventListener('touchend', () => {
+        if (!state.isTerminalResizing) return;
+        state.isTerminalResizing = false;
+        document.body.classList.remove('no-select');
+        elements.terminalResizer.classList.remove('resizing');
+        saveTerminalHeight(state.terminalHeightPx);
+    });
+}
+
 // ============================================
 // Question Loading
 // ============================================
@@ -896,6 +1163,26 @@ function setupEventListeners() {
         });
     }
 
+    // Editor toolbar: run tests
+    if (elements.runCodeBtn) {
+        elements.runCodeBtn.addEventListener('click', () => {
+            runCurrentCode();
+        });
+    }
+
+    // Editor toolbar: toggle output panel
+    if (elements.toggleTerminalBtn) {
+        elements.toggleTerminalBtn.addEventListener('click', () => {
+            setTerminalVisible(!state.terminalVisible);
+        });
+    }
+
+    if (elements.clearTerminalBtn) {
+        elements.clearTerminalBtn.addEventListener('click', () => {
+            clearTerminal();
+        });
+    }
+
     // Question panel: tabs
     if (elements.tabDescription) {
         elements.tabDescription.addEventListener('click', () => {
@@ -962,13 +1249,17 @@ function setupEventListeners() {
 
 document.addEventListener('DOMContentLoaded', () => {
     loadDraftsFromStorage();
+    loadTerminalPrefs();
     initTheme();
     setupEventListeners();
     initResizer();
+    initTerminalResizer();
 
     // Initialize toolbar state
     updateSolutionToggleButton(false);
     setFullscreen(false);
+    setTerminalVisible(false, { force: true });
+    clearTerminal();
 
     // Pre-load Monaco Editor
     loadMonaco().then(() => {

@@ -2,9 +2,13 @@
 
 import json
 import logging
+import os
+import re
 import shutil
 import subprocess
+import sys
 import time
+import tempfile
 from pathlib import Path
 
 import markdown
@@ -19,6 +23,8 @@ from .models import (
     QuestionDetail,
     QuestionListItem,
     QuestionSolution,
+    RunCodeRequest,
+    RunCodeResponse,
 )
 
 # Paths
@@ -77,6 +83,17 @@ async def index(request: Request):
     """Render the main page."""
     questions = get_all_questions()
 
+    # Cache-bust static assets when they change on disk (avoids stale JS/CSS in browser cache).
+    # We intentionally keep this cheap: just stat two files.
+    try:
+        static_js_version = int((STATIC_DIR / "js" / "app.js").stat().st_mtime)
+    except Exception:  # noqa: BLE001
+        static_js_version = int(time.time())
+    try:
+        static_css_version = int((STATIC_DIR / "css" / "style.css").stat().st_mtime)
+    except Exception:  # noqa: BLE001
+        static_css_version = int(time.time())
+
     # Difficulty order for sorting
     difficulty_order = {"Easy": 0, "Medium": 1, "Hard": 2}
 
@@ -97,6 +114,8 @@ async def index(request: Request):
             "request": request,
             "categories": categories,
             "all_questions": questions,
+            "static_js_version": static_js_version,
+            "static_css_version": static_css_version,
         },
     )
 
@@ -200,6 +219,14 @@ async def search_questions(tags: str = ""):
     return filtered
 
 
+def _truncate_output(text: str, *, max_chars: int = 80_000) -> str:
+    if len(text) <= max_chars:
+        return text
+    keep_head = max_chars // 2
+    keep_tail = max_chars - keep_head
+    return text[:keep_head] + "\n... <output truncated> ...\n" + text[-keep_tail:]
+
+
 def _run_ruff_format(
     code: str, *, stdin_filename: str
 ) -> tuple[str | None, str | None]:
@@ -284,6 +311,121 @@ async def format_python(payload: FormatPythonRequest, request: Request):
         changed=changed,
         used_ruff=True,
         error=None,
+    )
+
+
+@app.post("/api/run", response_model=RunCodeResponse)
+async def run_code(payload: RunCodeRequest, request: Request):
+    """
+    Run a question's tests against the provided candidate code in a subprocess.
+
+    We avoid importing/running candidate code in-process to reduce the chance of
+    crashing/hanging the web app. This is not a security sandbox, but it does
+    add basic isolation and a hard timeout.
+    """
+    t0 = time.perf_counter()
+    client = request.client.host if request.client else "unknown"
+
+    slug = (payload.question_slug or "").strip()
+    if not slug or not re.fullmatch(r"[a-z0-9_]+", slug):
+        raise HTTPException(status_code=400, detail="Invalid question_slug")
+
+    question_dir = DB_DIR / slug
+    if not question_dir.exists():
+        raise HTTPException(status_code=404, detail="Question not found")
+
+    # Ensure tests exist (consistent error message)
+    if not (question_dir / "tests.py").exists():
+        raise HTTPException(status_code=404, detail="Question tests not found")
+
+    timeout_s = 6.0
+    code_bytes = len(payload.code.encode("utf-8", errors="replace"))
+
+    with tempfile.TemporaryDirectory(prefix=f"mlbites_run_{slug}_") as td:
+        candidate_path = Path(td) / "candidate.py"
+        candidate_path.write_text(payload.code, encoding="utf-8")
+
+        env = os.environ.copy()
+        src_dir = str(BASE_DIR / "src")
+        env["PYTHONPATH"] = src_dir + (
+            os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else ""
+        )
+
+        cmd = [
+            sys.executable,
+            "-m",
+            "mlbites.verify",
+            slug,
+            "--candidate",
+            str(candidate_path),
+        ]
+
+        logger.info(
+            "run_code request client=%s question=%s bytes=%d timeout_s=%.1f",
+            client,
+            slug,
+            code_bytes,
+            timeout_s,
+        )
+
+        try:
+            proc = subprocess.run(
+                cmd,
+                cwd=BASE_DIR,
+                env=env,
+                text=True,
+                capture_output=True,
+                check=False,
+                timeout=timeout_s,
+            )
+            stdout = proc.stdout or ""
+            stderr = proc.stderr or ""
+            exit_code = proc.returncode
+        except subprocess.TimeoutExpired as e:
+            dt_ms = (time.perf_counter() - t0) * 1000.0
+            stdout = (e.stdout or "") if isinstance(e.stdout, str) else ""
+            stderr = (e.stderr or "") if isinstance(e.stderr, str) else ""
+            stderr = (stderr + "\n[timeout] Execution timed out.\n").lstrip("\n")
+            logger.warning(
+                "run_code timeout client=%s question=%s duration_ms=%.1f",
+                client,
+                slug,
+                dt_ms,
+            )
+            return RunCodeResponse(
+                status="timeout",
+                exit_code=None,
+                stdout=_truncate_output(stdout),
+                stderr=_truncate_output(stderr),
+                duration_ms=dt_ms,
+            )
+
+    dt_ms = (time.perf_counter() - t0) * 1000.0
+    stdout = _truncate_output(stdout)
+    stderr = _truncate_output(stderr)
+
+    if exit_code == 0:
+        status = "pass"
+    elif exit_code == 1:
+        status = "fail"
+    else:
+        status = "error"
+
+    logger.info(
+        "run_code done client=%s question=%s status=%s exit_code=%s duration_ms=%.1f",
+        client,
+        slug,
+        status,
+        exit_code,
+        dt_ms,
+    )
+
+    return RunCodeResponse(
+        status=status,
+        exit_code=exit_code,
+        stdout=stdout,
+        stderr=stderr,
+        duration_ms=dt_ms,
     )
 
 

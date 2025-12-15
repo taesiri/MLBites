@@ -1,5 +1,9 @@
 """Pydantic models for MLBites."""
 
+from __future__ import annotations
+
+from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -58,3 +62,20 @@ class FormatPythonResponse(BaseModel):
     changed: bool
     used_ruff: bool
     error: str | None = None
+
+
+class RunCodeRequest(BaseModel):
+    """Request to run tests for a question against a candidate code string."""
+
+    question_slug: str
+    code: str
+
+
+class RunCodeResponse(BaseModel):
+    """Response for running tests."""
+
+    status: Literal["pass", "fail", "error", "timeout"]
+    exit_code: int | None = None
+    stdout: str = ""
+    stderr: str = ""
+    duration_ms: float

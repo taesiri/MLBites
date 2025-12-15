@@ -28,7 +28,7 @@
 
 
     <!-- Custom styles -->
-    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/style.css?v={{ static_css_version }}">
 </head>
 
 <body>
@@ -159,7 +159,26 @@
                 <!-- Editor Panel -->
                 <div class="panel editor-panel" id="editor-panel">
                     <div class="panel-header editor-toolbar" aria-label="Editor toolbar">
-                        <div class="editor-toolbar-actions">
+                        <div class="editor-toolbar-left">
+                            <button class="icon-btn icon-btn--run" id="run-code-btn" type="button" title="Run tests"
+                                aria-label="Run tests">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polygon points="6 3 20 12 6 21 6 3"></polygon>
+                                </svg>
+                            </button>
+
+                            <button class="icon-btn" id="toggle-terminal-btn" type="button" title="Show output"
+                                aria-label="Show output" aria-pressed="false">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                    stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="4 17 10 11 4 5"></polyline>
+                                    <line x1="12" y1="19" x2="20" y2="19"></line>
+                                </svg>
+                            </button>
+                        </div>
+
+                        <div class="editor-toolbar-actions editor-toolbar-right">
                             <button class="icon-btn" id="toggle-solution-btn" type="button" title="Show solution"
                                 aria-label="Show solution" aria-pressed="false">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -204,6 +223,30 @@
                     <div class="editor-container" id="editor-container">
                         <!-- Monaco Editor will be mounted here -->
                     </div>
+                    <div class="editor-terminal-resizer hidden" id="terminal-resizer" aria-hidden="true"></div>
+                    <div class="terminal-panel hidden" id="terminal-panel" aria-label="Run output panel">
+                        <div class="terminal-header">
+                            <div class="terminal-header-left">
+                                <span class="terminal-title">Output</span>
+                                <span class="terminal-status terminal-status--idle" id="terminal-status"
+                                    aria-live="polite">Idle</span>
+                            </div>
+                            <div class="terminal-header-right">
+                                <button class="icon-btn icon-btn--sm" id="clear-terminal-btn" type="button"
+                                    title="Clear output" aria-label="Clear output">
+                                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="3 6 5 6 21 6"></polyline>
+                                        <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                                        <path d="M10 11v6"></path>
+                                        <path d="M14 11v6"></path>
+                                        <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                        <pre class="terminal-output" id="terminal-output"></pre>
+                    </div>
                 </div>
             </div>
         </main>
@@ -213,7 +256,7 @@
     <div class="toast hidden" id="toast" role="status" aria-live="polite"></div>
 
     <!-- Custom JavaScript -->
-    <script src="/static/js/app.js"></script>
+    <script src="/static/js/app.js?v={{ static_js_version }}"></script>
 </body>
 
 </html>
