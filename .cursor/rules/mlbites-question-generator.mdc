@@ -1,0 +1,177 @@
+---
+description: "MLBites: generate a new ML question package under ./db/<question_slug> (strict metadata schema, consistent docs, interview-friendly code)"
+globs:
+  - "db/**"
+alwaysApply: false
+---
+
+# MLBites Question Package Rule (STRICT)
+
+When the user asks to create a new question (e.g., "Question for implementation of X or Y"):
+Create a new folder at:
+  ./db/<question_slug>/
+
+It MUST contain exactly these files:
+- metadata.json
+- question.md
+- solution.md
+- solution.py
+- starting_point.py
+
+Use lower_snake_case for <question_slug>, e.g. "linear_regression", "softmax_cross_entropy".
+
+---
+
+## metadata.json (STRICT SCHEMA)
+
+Write valid JSON (no comments, no trailing commas). It MUST match this exact structure:
+
+{
+  "title": "<Human readable title>",
+  "category": "<Category name>",
+  "tags": ["tag1", "tag2", ...],
+  "difficulty": "Easy" | "Medium" | "Hard"
+}
+
+Rules:
+- Only these 4 keys. No extras.
+- "title": short and specific.
+- "category": one of your existing categories (if unclear, default to "Basics").
+- "tags": 3–8 lowercase tags, kebab-case or simple words; be consistent.
+- "difficulty": choose based on expected 20–30 minute implementation.
+
+---
+
+## question.md (STRICT STRUCTURE)
+
+Use this exact section order and headings:
+
+# <Title>
+
+## Problem
+Explain the goal in plain English.
+
+## Task
+State exactly what to implement (function/class) and what it should accomplish.
+
+## Function Signature
+Provide the exact Python signature to implement.
+This signature MUST match starting_point.py and solution.py.
+
+## Inputs and Outputs
+Bullets describing:
+- inputs: types/shapes/ranges
+- outputs: types/shapes and meaning
+
+## Constraints
+- Must be solvable in 20–30 minutes.
+- Interview-friendly: avoid heavy boilerplate.
+- Allowed libs: default to Python stdlib only.
+  If needed, allow numpy OR torch, but only if the task explicitly requires it.
+
+## Examples
+Provide at least 2 deterministic examples with expected outputs.
+
+## Edge Cases
+List key edge cases the implementation must handle.
+
+## What We Evaluate
+Bulleted acceptance criteria describing correctness (behavioral, not test-internals).
+
+---
+
+## starting_point.py (STRICT)
+
+- Contains ONLY:
+  - imports (minimal)
+  - function/class signature
+  - docstring describing inputs/outputs and TODO steps
+  - Not implemented body: raise NotImplementedError
+- Must NOT contain the final logic.
+- Must be runnable (no syntax errors).
+
+Template:
+
+```python
+from __future__ import annotations
+
+def <name>(...):
+    \"\"\"<brief docstring>
+
+    Args:
+        ...
+
+    Returns:
+        ...
+    \"\"\"
+    # TODO: implement
+    raise NotImplementedError
+
+
+⸻
+
+solution.py (INTERVIEW-FRIENDLY + MINIMAL)
+	•	Minimal reference implementation, readable in one sitting.
+	•	Deterministic, test-friendly:
+	•	no prints
+	•	no input()
+	•	no randomness unless explicitly required and seeded
+	•	Use clear variable names and straightforward steps.
+	•	Include type hints and a concise docstring.
+	•	Handle every edge case listed in question.md.
+	•	Avoid unnecessary abstractions/classes.
+	•	Prefer stdlib; allow numpy/torch only if the question requires it.
+
+⸻
+
+solution.md (STRICT STRUCTURE)
+
+Approach
+
+High-level reasoning, 5–12 bullets.
+
+Correctness
+
+Explain why it works (reference edge cases).
+
+Complexity
+
+Time and space complexity.
+
+Common Pitfalls
+
+3–6 bullets.
+
+Keep it short and practical.
+
+⸻
+
+Final self-check (MUST DO)
+
+Before finishing:
+	1.	Ensure ./db/<question_slug>/ contains all 5 files.
+	2.	Ensure metadata.json has ONLY the 4 keys and valid difficulty value.
+	3.	Ensure the function/class signature matches in:
+question.md, starting_point.py, solution.py
+	4.	Ensure examples are deterministic and consistent with the solution.
+	5.	Ensure the solution is realistically doable in 20–30 minutes.
+
+## Optional but very nice: a slash command
+
+`./.cursor/commands/new-mlbite.md`
+
+```md
+# /new-mlbite
+
+Create a new MLBites question package under ./db/<question_slug>/.
+
+Input: "$USER_REQUEST" (e.g. "Implement logistic regression gradient descent").
+
+You MUST:
+- Create ./db/<question_slug>/ with 5 files:
+  metadata.json, question.md, solution.md, solution.py, starting_point.py
+- Follow the "MLBites Question Package Rule (STRICT)" exactly.
+- Keep the implementation interview-friendly (20–30 minutes).
+- Use deterministic examples and minimal dependencies.
+
+If you want, paste one of your existing question.md + solution.py pairs and I’ll tune the writing style (tone, formatting, how “PyTorch-y” you want it, etc.) to match your existing dataset perfectly.
