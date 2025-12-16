@@ -39,5 +39,3 @@ class SGD:
                 d_p = b
 
             p.add_(d_p, alpha=-self.lr)
-
-

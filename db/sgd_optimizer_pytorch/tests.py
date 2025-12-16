@@ -5,7 +5,9 @@ from types import ModuleType
 import torch
 
 
-def _assert_allclose(a: torch.Tensor, b: torch.Tensor, *, atol: float, rtol: float, msg: str) -> None:
+def _assert_allclose(
+    a: torch.Tensor, b: torch.Tensor, *, atol: float, rtol: float, msg: str
+) -> None:
     if not torch.allclose(a, b, atol=atol, rtol=rtol):
         diff = (a - b).abs().max().item()
         raise AssertionError(f"{msg}\nmax_abs_diff={diff}\na={a}\nb={b}")
@@ -60,7 +62,9 @@ def run_tests(candidate: ModuleType) -> None:
     opt_candidate = candidate.SGD(
         [w0], lr=lr, momentum=momentum, weight_decay=weight_decay
     )
-    opt_torch = torch.optim.SGD([w1], lr=lr, momentum=momentum, weight_decay=weight_decay)
+    opt_torch = torch.optim.SGD(
+        [w1], lr=lr, momentum=momentum, weight_decay=weight_decay
+    )
 
     for t in range(1, 11):
         loss0 = ((w0 - target) ** 2).sum()
@@ -99,7 +103,9 @@ def run_tests(candidate: ModuleType) -> None:
     opt_candidate.step()
     opt_torch.step()
 
-    _assert_allclose(a0, a1, atol=0.0, rtol=0.0, msg="SGD update mismatch for grad param.")
-    _assert_allclose(b0, b1, atol=0.0, rtol=0.0, msg="Param with grad=None should be unchanged.")
-
-
+    _assert_allclose(
+        a0, a1, atol=0.0, rtol=0.0, msg="SGD update mismatch for grad param."
+    )
+    _assert_allclose(
+        b0, b1, atol=0.0, rtol=0.0, msg="Param with grad=None should be unchanged."
+    )

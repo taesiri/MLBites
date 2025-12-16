@@ -45,5 +45,3 @@ class SGD:
         """
         # TODO: for each param with non-None grad, compute d_p and update p in-place
         raise NotImplementedError
-
-
