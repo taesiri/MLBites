@@ -1,4 +1,4 @@
-# Implement Logistic Regression (NumPy)
+# Implement Logistic Regression
 
 ## Problem
 Logistic regression is a classic baseline for binary classification. Given feature vectors \(X\) and binary labels \(y \in \{0, 1\}\), it learns weights \(w\) and bias \(b\) so that:

@@ -1,4 +1,4 @@
-# Implement SGD Optimizer (PyTorch)
+# Implement SGD Optimizer
 
 ## Problem
 Stochastic Gradient Descent (SGD) is a foundational optimizer. In PyTorch, `torch.optim.SGD` can optionally use momentum and weight decay (L2 regularization).

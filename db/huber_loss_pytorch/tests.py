@@ -17,15 +17,15 @@ def run_tests(candidate: ModuleType) -> None:
     """Run all tests against a candidate solution module.
 
     Args:
-        candidate: a Python module that defines the required function(s) for this question.
+        candidate: a Python module that defines the required class(es) for this question.
 
     Raises:
         AssertionError: if any test fails.
     """
-    if not hasattr(candidate, "huber_loss"):
-        raise AssertionError("Candidate must define function `huber_loss`.")
+    if not hasattr(candidate, "HuberLoss"):
+        raise AssertionError("Candidate must define class `HuberLoss`.")
 
-    huber_loss = candidate.huber_loss
+    HuberLoss = candidate.HuberLoss
     dtype = torch.float64
 
     # --- test 1: small residuals (all within delta) ---
@@ -36,7 +36,8 @@ def run_tests(candidate: ModuleType) -> None:
     # huber = 0.5 * r^2 = [0.02, 0.02, 0.005]
     # mean = 0.015
     expected = torch.tensor(0.015, dtype=dtype)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 1 failed: small residuals")
 
     # --- test 2: large residuals (all outside delta) ---
@@ -47,7 +48,8 @@ def run_tests(candidate: ModuleType) -> None:
     # huber = delta * (|r| - 0.5 * delta) = [1.0 * 2.5, 1.0 * 4.5] = [2.5, 4.5]
     # mean = 3.5
     expected = torch.tensor(3.5, dtype=dtype)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 2 failed: large residuals")
 
     # --- test 3: mixed residuals ---
@@ -58,7 +60,8 @@ def run_tests(candidate: ModuleType) -> None:
     # residual[1] = -3.0, |r| > delta -> 1.0 * (3.0 - 0.5) = 2.5
     # mean = 1.3125
     expected = torch.tensor(1.3125, dtype=dtype)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 3 failed: mixed residuals")
 
     # --- test 4: exact boundary (|residual| == delta) ---
@@ -70,7 +73,8 @@ def run_tests(candidate: ModuleType) -> None:
     # linear: 1.0 * (1.0 - 0.5) = 0.5
     # Both should give 0.5 (continuity)
     expected = torch.tensor(0.5, dtype=dtype)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 4 failed: boundary case")
 
     # --- test 5: custom delta ---
@@ -81,7 +85,8 @@ def run_tests(candidate: ModuleType) -> None:
     # residual[1] = -2.0, |r| > delta -> linear: 0.5 * (2.0 - 0.25) = 0.875
     # mean = 0.5
     expected = torch.tensor(0.5, dtype=dtype)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 5 failed: custom delta")
 
     # --- test 6: match PyTorch's HuberLoss ---
@@ -93,14 +98,16 @@ def run_tests(candidate: ModuleType) -> None:
     # PyTorch's HuberLoss with delta and reduction='mean' is equivalent
     torch_loss = torch.nn.HuberLoss(reduction="mean", delta=delta)
     expected = torch_loss(predictions, targets)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 6 failed: mismatch with PyTorch HuberLoss")
 
     # --- test 7: different delta with PyTorch comparison ---
     delta = 2.0
     torch_loss = torch.nn.HuberLoss(reduction="mean", delta=delta)
     expected = torch_loss(predictions, targets)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 7 failed: mismatch with delta=2.0")
 
     # --- test 8: zero residual ---
@@ -108,6 +115,15 @@ def run_tests(candidate: ModuleType) -> None:
     targets = torch.tensor([1.0, 2.0, 3.0], dtype=dtype)
     delta = 1.0
     expected = torch.tensor(0.0, dtype=dtype)
-    result = huber_loss(predictions, targets, delta)
+    loss_fn = HuberLoss(delta=delta)
+    result = loss_fn(predictions, targets)
     _assert_allclose(result, expected, atol=1e-10, rtol=1e-10, msg="Test 8 failed: zero residual")
 
+    # --- test 9: verify it's an nn.Module ---
+    loss_fn = HuberLoss(delta=1.0)
+    if not isinstance(loss_fn, torch.nn.Module):
+        raise AssertionError("Test 9 failed: HuberLoss must inherit from nn.Module")
+
+    # --- test 10: verify forward method exists ---
+    if not hasattr(loss_fn, "forward"):
+        raise AssertionError("Test 10 failed: HuberLoss must have a forward method")

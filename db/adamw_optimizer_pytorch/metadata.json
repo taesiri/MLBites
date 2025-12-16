@@ -1,5 +1,5 @@
 {
-  "title": "Implement AdamW Optimizer (PyTorch)",
+  "title": "Implement AdamW Optimizer",
   "category": "Basics",
   "framework": "pytorch",
   "tags": ["pytorch", "optimization", "adamw", "optimizer", "weight-decay", "decoupled-weight-decay"],

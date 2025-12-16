@@ -1,4 +1,4 @@
-# Implement AdamW Optimizer (PyTorch)
+# Implement AdamW Optimizer
 
 ## Problem
 AdamW is a variant of Adam that uses **decoupled weight decay**. Instead of adding an L2 term into the gradient (like classic weight decay), AdamW applies weight decay directly to the parameters as a separate step.

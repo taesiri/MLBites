@@ -1,5 +1,5 @@
 {
-    "title": "Implement ResNet-18 (PyTorch)",
+    "title": "Implement ResNet-18",
     "category": "Neural Networks",
     "framework": "pytorch",
     "tags": [

@@ -1,4 +1,4 @@
-# Implement Multi-Head Self-Attention (PyTorch)
+# Implement Multi-Head Self-Attention
 
 ## Problem
 Multi-head attention is a core building block in Transformers. In its simplest form (self-attention), it projects an input sequence into queries/keys/values, computes attention weights, and returns a weighted sum of values.

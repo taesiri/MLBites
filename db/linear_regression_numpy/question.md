@@ -1,4 +1,4 @@
-# Linear Regression (NumPy)
+# Linear Regression
 
 ## Problem
 Linear regression fits a line (or hyperplane) that best predicts a continuous target from input features by minimizing mean squared error.

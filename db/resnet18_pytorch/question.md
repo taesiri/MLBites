@@ -1,4 +1,4 @@
-# Implement ResNet-18 (PyTorch)
+# Implement ResNet-18
 
 ## Problem
 ResNet (Residual Network) revolutionized deep learning by introducing skip connections that allow gradients to flow directly through the network, enabling training of much deeper networks. ResNet-18 is the smallest variant, consisting of 18 layers with residual blocks. Understanding residual connections is fundamental for modern deep learning architectures.

@@ -1,4 +1,4 @@
-# Implement a Simple VAE (PyTorch)
+# Implement a Simple VAE
 
 ## Problem
 A Variational Autoencoder (VAE) is a generative model that learns a latent representation of data. It consists of an encoder that maps inputs to a latent distribution, a reparameterization trick that enables backpropagation through sampling, and a decoder that reconstructs the input from the latent space.

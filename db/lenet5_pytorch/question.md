@@ -1,4 +1,4 @@
-# Implement LeNet-5 (PyTorch)
+# Implement LeNet-5
 
 ## Problem
 LeNet-5 is one of the earliest convolutional neural networks, designed by Yann LeCun in 1998 for handwritten digit recognition. It introduced the core concepts of CNNs: convolution, pooling, and hierarchical feature extraction. Understanding LeNet-5 is foundational for working with modern deep learning architectures.
