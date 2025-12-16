@@ -1,0 +1,14 @@
+{
+    "title": "Linear Regression (NumPy)",
+    "category": "Basics",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "linear-regression",
+        "least-squares",
+        "normal-equation",
+        "regression"
+    ],
+    "difficulty": "Easy",
+    "relevant_questions": []
+}

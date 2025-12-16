@@ -1,0 +1,10 @@
+{
+  "title": "Implement SGD Optimizer (PyTorch)",
+  "category": "Basics",
+  "framework": "pytorch",
+  "tags": ["pytorch", "optimization", "sgd", "optimizer", "momentum", "weight-decay"],
+  "difficulty": "Easy",
+  "relevant_questions": ["adam_optimizer_pytorch"]
+}
+
+

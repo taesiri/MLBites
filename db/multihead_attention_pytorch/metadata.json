@@ -1,0 +1,17 @@
+{
+  "title": "Implement Multi-Head Self-Attention (PyTorch)",
+  "category": "Transformers",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "transformers",
+    "attention",
+    "multihead-attention",
+    "self-attention",
+    "scaled-dot-product"
+  ],
+  "difficulty": "Medium",
+  "relevant_questions": []
+}
+
+
