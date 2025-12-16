@@ -23,6 +23,19 @@ Use lower_snake_case for <question_slug>, e.g. "linear_regression", "softmax_cro
 
 ---
 
+## Core philosophy (INTERVIEW-FIRST + MINIMAL)
+
+Treat every package as a 20–30 minute interview exercise (aim ~20 minutes).
+
+- Prefer a **straightforward, minimal implementation** over a “production-grade” one.
+- **Do not add unnecessary defensive checks** (e.g., exhaustive type/range validation, redundant asserts, complex error handling) unless the problem statement explicitly asks for it.
+- Assume inputs satisfy the documented **Inputs/Outputs + Constraints** contract.
+- Avoid over-engineering: no extra features, no clever abstractions, no premature micro-optimizations.
+
+If the reference solution can’t be explained and implemented quickly, simplify the problem or narrow the scope.
+
+---
+
 ## metadata.json (STRICT SCHEMA)
 
 Write valid JSON (no comments, no trailing commas). It MUST match this exact structure:
@@ -32,25 +45,16 @@ Write valid JSON (no comments, no trailing commas). It MUST match this exact str
   "category": "<Category name>",
   "framework": "pytorch" | "numpy",
   "tags": ["tag1", "tag2", ...],
-  "difficulty": "Easy" | "Medium" | "Hard",
-  "relevant_questions": ["other_question_slug_1", "other_question_slug_2"]
+  "difficulty": "Easy" | "Medium" | "Hard"
 }
 
 Rules:
-- Only these 6 keys. No extras.
 - "title": short and specific.
 - "category": one of your existing categories (if unclear, default to "Basics").
 - "framework": must be "pytorch" or "numpy" and must match the implementation's primary library.
 - "tags": 3–8 lowercase tags, kebab-case or simple words; be consistent.
-  - MUST include "numpy" if the question allows/uses NumPy.
-  - MUST include "pytorch" if the question allows/uses PyTorch / torch.
 - "tags" MUST include the same value as "framework".
-- "difficulty": choose based on expected 20–30 minute implementation.
-- "relevant_questions": list of related question slugs (folders under ./db/) to help build future "recommended next" flows.
-  - This field will NOT be shown on the website for now.
-  - Use an empty list [] if none.
-  - Prefer 0–5 items, and only include slugs that already exist in the repo.
-
+- "difficulty": choose based on an expected 20–30 minute implementation (aim ~20).
 ---
 
 ## question.md (STRICT STRUCTURE)
@@ -77,6 +81,7 @@ Bullets describing:
 ## Constraints
 - Must be solvable in 20–30 minutes.
 - Interview-friendly: avoid heavy boilerplate.
+- Assume inputs satisfy the documented contract; avoid extra validation unless explicitly required.
 - Allowed libs: default to Python stdlib only.
   If needed, allow numpy OR torch, but only if the task explicitly requires it.
 
@@ -158,14 +163,17 @@ Notes:
 ⸻
 
 solution.py (INTERVIEW-FRIENDLY + MINIMAL)
-	•	Minimal reference implementation, readable in one sitting.
-	•	Deterministic, test-friendly:
-	•	no prints
-	•	no input()
-	•	Use clear variable names and straightforward steps.
-	•	Include type hints and a concise docstring.
-	•	Avoid unnecessary abstractions/classes.
-	•	Prefer stdlib; allow numpy/torch only if the question requires it.
+
+- Minimal reference implementation, readable in one sitting.
+- Should be realistically implementable in ~20 minutes (no more than 30).
+- Assume inputs satisfy the stated constraints; **do not add extra defensive checks** unless required by the prompt/tests.
+- Keep it direct: clear variable names, straightforward steps, no unnecessary abstractions/classes.
+- Deterministic + test-friendly:
+  - no prints
+  - no input()
+  - no randomness unless explicitly required (and then seed it)
+- Include type hints and a concise docstring.
+- Prefer stdlib; allow numpy/torch only if the question requires it.
 
 ⸻
 
@@ -195,7 +203,7 @@ Final self-check (MUST DO)
 
 Before finishing:
 	1.	Ensure ./db/<question_slug>/ contains all 6 files.
-	2.	Ensure metadata.json has ONLY the 5 keys, a valid difficulty value, and a list for relevant_questions.
+	2.	Ensure metadata.json has ONLY the 5 keys shown above and valid values (including difficulty).
         Also ensure "tags" includes "numpy"/"pytorch" when those libs are allowed/used.
 	3.	Ensure the function/class signature matches in:
 question.md, starting_point.py, solution.py
