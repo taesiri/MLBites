@@ -1,0 +1,12 @@
+---
+alwaysApply: true
+---
+# Python: uv-only
+- Use `uv` for all Python environment + dependency management and running commands.  
+- Never use: `pip`, `pip-tools`, `virtualenv`/`venv` (direct), `poetry`, `pipenv`, `conda`.
+- Preferred commands:
+  - Create venv: `uv venv`
+  - Add deps (updates `pyproject.toml` + lock): `uv add <pkg>` 
+  - Sync env from lock: `uv sync`
+  - Run anything: `uv run <cmd>`
+- If a pip-style command is unavoidable, use `uv pip ...` (not plain `pip`). 
