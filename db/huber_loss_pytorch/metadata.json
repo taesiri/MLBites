@@ -1,0 +1,13 @@
+{
+    "title": "Implement Huber Loss (PyTorch)",
+    "category": "Loss Functions",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "loss-function",
+        "huber-loss",
+        "robust-regression"
+    ],
+    "difficulty": "Easy"
+}
+

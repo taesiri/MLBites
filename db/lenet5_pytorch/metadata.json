@@ -1,0 +1,15 @@
+{
+    "title": "Implement LeNet-5 (PyTorch)",
+    "category": "Neural Networks",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "cnn",
+        "convolutional-neural-network",
+        "lenet",
+        "image-classification"
+    ],
+    "difficulty": "Easy",
+    "relevant_questions": []
+}
+
