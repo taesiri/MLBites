@@ -1,0 +1,16 @@
+{
+    "title": "Implement a Simple VAE (PyTorch)",
+    "category": "Deep Learning",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "vae",
+        "variational-autoencoder",
+        "generative-models",
+        "encoder-decoder",
+        "reparameterization"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": []
+}
+
