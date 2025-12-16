@@ -1,6 +1,7 @@
 {
     "title": "Multi-Head Attention (PyTorch)",
     "category": "Transformers",
+    "framework": "pytorch",
     "tags": [
         "pytorch",
         "attention",

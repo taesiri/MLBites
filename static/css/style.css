@@ -311,6 +311,60 @@ html[data-theme="light"] .logo-icon:focus-visible {
     position: relative;
 }
 
+/* Framework toggle (NumPy / PyTorch) */
+.framework-toggle {
+    padding: 12px 20px 0;
+    display: flex;
+    gap: 8px;
+}
+
+.framework-btn {
+    flex: 1 1 0;
+    appearance: none;
+    border: 1px solid var(--border-primary);
+    background: var(--bg-tertiary);
+    color: var(--text-secondary);
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 8px 10px;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast),
+        transform var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.framework-btn:hover {
+    background: var(--bg-hover);
+    color: var(--text-primary);
+}
+
+.framework-btn:active {
+    transform: translateY(1px);
+}
+
+.framework-btn.active,
+.framework-btn[aria-pressed="true"] {
+    background: rgba(88, 166, 255, 0.14);
+    border-color: rgba(88, 166, 255, 0.35);
+    color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.12);
+}
+
+.framework-btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(88, 166, 255, 0.25);
+    border-color: var(--accent-primary);
+}
+
+html[data-theme="light"] .framework-btn.active,
+html[data-theme="light"] .framework-btn[aria-pressed="true"] {
+    background: rgba(9, 105, 218, 0.12);
+    border-color: rgba(9, 105, 218, 0.35);
+    color: var(--accent-primary);
+    box-shadow: 0 0 0 3px rgba(9, 105, 218, 0.14);
+}
+
 .search-icon {
     position: absolute;
     left: 32px;

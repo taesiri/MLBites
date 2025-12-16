@@ -25,6 +25,7 @@ const state = {
     drafts: {},
     terminalVisible: false,
     terminalHeightPx: 180,
+    activeFramework: 'pytorch', // 'pytorch' | 'numpy'
 };
 
 // ============================================
@@ -56,6 +57,8 @@ const elements = {
     clearTerminalBtn: document.getElementById('clear-terminal-btn'),
     searchInput: document.getElementById('search-input'),
     questionList: document.getElementById('question-list'),
+    frameworkBtnPytorch: document.getElementById('framework-btn-pytorch'),
+    frameworkBtnNumpy: document.getElementById('framework-btn-numpy'),
     sidebar: document.getElementById('sidebar'),
     sidebarToggle: document.getElementById('sidebar-toggle'),
     sidebarToggleFloating: document.getElementById('sidebar-toggle-floating'),
@@ -64,6 +67,53 @@ const elements = {
     themeToggle: document.getElementById('theme-toggle'),
     hljsTheme: document.getElementById('hljs-theme'),
 };
+
+// ============================================
+// Framework Filter (PyTorch / NumPy)
+// ============================================
+
+const FRAMEWORK_STORAGE_KEY = 'mlbites:framework:v1';
+
+function normalizeFramework(v) {
+    const s = String(v || '').toLowerCase().trim();
+    return s === 'numpy' ? 'numpy' : 'pytorch';
+}
+
+function loadFrameworkFromStorage() {
+    try {
+        const raw = localStorage.getItem(FRAMEWORK_STORAGE_KEY);
+        if (!raw) return;
+        state.activeFramework = normalizeFramework(raw);
+    } catch {
+        // ignore
+    }
+}
+
+function saveFrameworkToStorage(framework) {
+    try {
+        localStorage.setItem(FRAMEWORK_STORAGE_KEY, normalizeFramework(framework));
+    } catch {
+        // ignore
+    }
+}
+
+function setFrameworkFilter(framework) {
+    const next = normalizeFramework(framework);
+    state.activeFramework = next;
+    saveFrameworkToStorage(next);
+
+    const isPytorch = next === 'pytorch';
+    if (elements.frameworkBtnPytorch) {
+        elements.frameworkBtnPytorch.classList.toggle('active', isPytorch);
+        elements.frameworkBtnPytorch.setAttribute('aria-pressed', isPytorch ? 'true' : 'false');
+    }
+    if (elements.frameworkBtnNumpy) {
+        elements.frameworkBtnNumpy.classList.toggle('active', !isPytorch);
+        elements.frameworkBtnNumpy.setAttribute('aria-pressed', !isPytorch ? 'true' : 'false');
+    }
+
+    applySidebarFilters(elements.searchInput?.value || '');
+}
 
 // ============================================
 // Terminal / Output Panel
@@ -1030,31 +1080,36 @@ function updateActiveQuestion(slug) {
 // Search / Filter
 // ============================================
 
-function filterQuestions(searchTerm) {
-    const searchLower = searchTerm.toLowerCase().trim();
+function applySidebarFilters(searchTerm) {
+    const searchLower = String(searchTerm || '').toLowerCase().trim();
     const questionItems = document.querySelectorAll('.question-item');
-    const categoryGroups = document.querySelectorAll('.category-group');
-
-    if (!searchLower) {
-        questionItems.forEach(item => item.style.display = '');
-        categoryGroups.forEach(group => group.style.display = '');
-        return;
-    }
+    // Sidebar groups are rendered server-side (currently grouped by difficulty).
+    // We keep the existing `.category-group` class for styling and collapse behavior.
+    const groups = document.querySelectorAll('.category-group');
+    const activeFramework = normalizeFramework(state.activeFramework);
 
     questionItems.forEach(item => {
-        const tags = item.dataset.tags.toLowerCase();
-        const title = item.querySelector('.question-title').textContent.toLowerCase();
+        const itemFramework = normalizeFramework(item.dataset.framework);
+        const matchesFramework = itemFramework === activeFramework;
 
-        if (tags.includes(searchLower) || title.includes(searchLower)) {
-            item.style.display = '';
-        } else {
-            item.style.display = 'none';
+        // Search matches tags or title (same behavior as before)
+        let matchesSearch = true;
+        if (searchLower) {
+            const tags = String(item.dataset.tags || '').toLowerCase();
+            const title = String(item.querySelector('.question-title')?.textContent || '').toLowerCase();
+            matchesSearch = tags.includes(searchLower) || title.includes(searchLower);
         }
+
+        item.style.display = matchesFramework && matchesSearch ? '' : 'none';
     });
 
-    categoryGroups.forEach(group => {
+    groups.forEach(group => {
         const visibleItems = group.querySelectorAll('.question-item:not([style*="display: none"])');
         group.style.display = visibleItems.length > 0 ? '' : 'none';
+
+        // Update the group count to reflect visible items under current filters
+        const countEl = group.querySelector('.category-count');
+        if (countEl) countEl.textContent = String(visibleItems.length);
     });
 }
 
@@ -1076,7 +1131,7 @@ function setupEventListeners() {
         });
     }
 
-    // Category header click handlers (collapsible)
+    // Group header click handlers (collapsible)
     document.querySelectorAll('.category-header').forEach(header => {
         header.addEventListener('click', (e) => {
             e.preventDefault();
@@ -1213,13 +1268,13 @@ function setupEventListeners() {
 
     // Search input
     elements.searchInput.addEventListener('input', (e) => {
-        filterQuestions(e.target.value);
+        applySidebarFilters(e.target.value);
     });
 
     elements.searchInput.addEventListener('keydown', (e) => {
         if (e.key === 'Escape') {
             elements.searchInput.value = '';
-            filterQuestions('');
+            applySidebarFilters('');
         }
     });
 
@@ -1231,8 +1286,20 @@ function setupEventListeners() {
             if (!tag) return;
             if (!elements.searchInput) return;
             elements.searchInput.value = tag;
-            filterQuestions(tag);
+            applySidebarFilters(tag);
             showToast(`Filtered by tag: ${tag}`, 'success');
+        });
+    }
+
+    // Framework toggle (PyTorch / NumPy)
+    if (elements.frameworkBtnPytorch) {
+        elements.frameworkBtnPytorch.addEventListener('click', () => {
+            setFrameworkFilter('pytorch');
+        });
+    }
+    if (elements.frameworkBtnNumpy) {
+        elements.frameworkBtnNumpy.addEventListener('click', () => {
+            setFrameworkFilter('numpy');
         });
     }
 
@@ -1252,6 +1319,7 @@ function setupEventListeners() {
 document.addEventListener('DOMContentLoaded', () => {
     loadDraftsFromStorage();
     loadTerminalPrefs();
+    loadFrameworkFromStorage();
     initTheme();
     setupEventListeners();
     initResizer();
@@ -1262,6 +1330,9 @@ document.addEventListener('DOMContentLoaded', () => {
     setFullscreen(false);
     setTerminalVisible(false, { force: true });
     clearTerminal();
+
+    // Apply initial sidebar filters (framework + any prefilled search)
+    setFrameworkFilter(state.activeFramework);
 
     // Pre-load Monaco Editor
     loadMonaco().then(() => {

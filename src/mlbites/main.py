@@ -97,22 +97,33 @@ async def index(request: Request):
     # Difficulty order for sorting
     difficulty_order = {"Easy": 0, "Medium": 1, "Hard": 2}
 
-    # Group questions by category
-    categories: dict[str, list[QuestionListItem]] = {}
+    # Group questions by difficulty (instead of category)
+    # Keep a stable, human-friendly ordering in the sidebar.
+    difficulty_groups: dict[str, list[QuestionListItem]] = {}
     for q in questions:
-        if q.category not in categories:
-            categories[q.category] = []
-        categories[q.category].append(q)
+        d = q.difficulty if q.difficulty in difficulty_order else "Medium"
+        difficulty_groups.setdefault(d, []).append(q)
 
-    # Sort questions within each category by difficulty
-    for category in categories:
-        categories[category].sort(key=lambda q: difficulty_order.get(q.difficulty, 1))
+    # Sort questions within each difficulty group (secondary: category, then title)
+    for d in difficulty_groups:
+        difficulty_groups[d].sort(
+            key=lambda q: (
+                q.category.lower(),
+                q.title.lower(),
+            )
+        )
+
+    # Ensure groups appear in Easy -> Medium -> Hard order (omit empty groups)
+    ordered_groups: dict[str, list[QuestionListItem]] = {}
+    for d in ("Easy", "Medium", "Hard"):
+        if d in difficulty_groups:
+            ordered_groups[d] = difficulty_groups[d]
 
     return templates.TemplateResponse(
         "index.html",
         {
             "request": request,
-            "categories": categories,
+            "difficulty_groups": ordered_groups,
             "all_questions": questions,
             "static_js_version": static_js_version,
             "static_css_version": static_css_version,
@@ -160,10 +171,12 @@ async def get_question(slug: str):
         slug=metadata["slug"],
         title=metadata["title"],
         category=metadata["category"],
+        framework=metadata["framework"],
         tags=metadata.get("tags", []),
         difficulty=metadata.get("difficulty", "Medium"),
         description_html=description_html,
         starting_code=starting_code,
+        relevant_questions=metadata.get("relevant_questions", []),
     )
 
 

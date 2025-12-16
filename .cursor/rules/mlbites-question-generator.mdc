@@ -30,18 +30,21 @@ Write valid JSON (no comments, no trailing commas). It MUST match this exact str
 {
   "title": "<Human readable title>",
   "category": "<Category name>",
+  "framework": "pytorch" | "numpy",
   "tags": ["tag1", "tag2", ...],
   "difficulty": "Easy" | "Medium" | "Hard",
   "relevant_questions": ["other_question_slug_1", "other_question_slug_2"]
 }
 
 Rules:
-- Only these 5 keys. No extras.
+- Only these 6 keys. No extras.
 - "title": short and specific.
 - "category": one of your existing categories (if unclear, default to "Basics").
+- "framework": must be "pytorch" or "numpy" and must match the implementation's primary library.
 - "tags": 3–8 lowercase tags, kebab-case or simple words; be consistent.
   - MUST include "numpy" if the question allows/uses NumPy.
   - MUST include "pytorch" if the question allows/uses PyTorch / torch.
+- "tags" MUST include the same value as "framework".
 - "difficulty": choose based on expected 20–30 minute implementation.
 - "relevant_questions": list of related question slugs (folders under ./db/) to help build future "recommended next" flows.
   - This field will NOT be shown on the website for now.

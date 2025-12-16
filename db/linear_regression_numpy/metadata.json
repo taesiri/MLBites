@@ -1,14 +1,14 @@
 {
-  "title": "Linear regression fit/predict (NumPy)",
-  "category": "Basics",
-  "tags": [
-    "numpy",
-    "linear-regression",
-    "least-squares",
-    "ridge",
-    "l2"
-  ],
-  "difficulty": "Easy",
-  "relevant_questions": []
+    "title": "Linear regression fit/predict (NumPy)",
+    "category": "Linear Regression",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "linear-regression",
+        "least-squares",
+        "ridge",
+        "l2"
+    ],
+    "difficulty": "Easy",
+    "relevant_questions": []
 }
-

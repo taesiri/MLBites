@@ -1,6 +1,7 @@
 {
     "title": "Linear (affine) forward/backward (NumPy)",
     "category": "Basics",
+    "framework": "numpy",
     "tags": [
         "numpy",
         "linear",

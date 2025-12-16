@@ -64,6 +64,18 @@
                 </button>
             </div>
 
+            <!-- Framework filter -->
+            <div class="framework-toggle" id="framework-toggle" role="group" aria-label="Filter questions by framework">
+                <button class="framework-btn active" id="framework-btn-pytorch" type="button" data-framework="pytorch"
+                    aria-pressed="true" title="Show PyTorch questions">
+                    PyTorch
+                </button>
+                <button class="framework-btn" id="framework-btn-numpy" type="button" data-framework="numpy"
+                    aria-pressed="false" title="Show NumPy questions">
+                    NumPy
+                </button>
+            </div>
+
             <!-- Search -->
             <div class="search-container">
                 <svg class="search-icon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
@@ -76,22 +88,23 @@
 
             <!-- Question List -->
             <div class="question-list" id="question-list">
-                {% for category, questions in categories.items() %}
-                <div class="category-group" data-category="{{ category }}">
+                {% for difficulty, questions in difficulty_groups.items() %}
+                <div class="category-group" data-difficulty="{{ difficulty }}">
                     <button class="category-header" type="button" aria-expanded="true">
                         <div class="category-header-left">
                             <svg class="category-chevron" width="12" height="12" viewBox="0 0 24 24" fill="none"
                                 stroke="currentColor" stroke-width="2">
                                 <polyline points="6 9 12 15 18 9"></polyline>
                             </svg>
-                            <span class="category-name">{{ category }}</span>
+                            <span class="category-name">{{ difficulty }}</span>
                         </div>
                         <span class="category-count">{{ questions|length }}</span>
                     </button>
                     <ul class="questions">
                         {% for question in questions %}
                         <li class="question-item" data-slug="{{ question.slug }}"
-                            data-tags="{{ question.tags | join(',') }}" data-category="{{ question.category }}">
+                            data-tags="{{ question.tags | join(',') }}" data-category="{{ question.category }}"
+                            data-difficulty="{{ question.difficulty }}" data-framework="{{ question.framework }}">
                             <span class="difficulty-dot difficulty-{{ question.difficulty | lower }}"></span>
                             <span class="question-title">{{ question.title }}</span>
                         </li>

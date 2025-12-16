@@ -7,14 +7,19 @@ from typing import Literal
 from pydantic import BaseModel
 
 
+Framework = Literal["pytorch", "numpy"]
+
+
 class QuestionMetadata(BaseModel):
     """Metadata for a question stored in metadata.json."""
 
     slug: str
     title: str
     category: str
+    framework: Framework
     tags: list[str]
     difficulty: str = "Medium"
+    relevant_questions: list[str] = []
 
 
 class QuestionDetail(BaseModel):
@@ -23,10 +28,12 @@ class QuestionDetail(BaseModel):
     slug: str
     title: str
     category: str
+    framework: Framework
     tags: list[str]
     difficulty: str
     description_html: str
     starting_code: str
+    relevant_questions: list[str] = []
 
 
 class QuestionSolution(BaseModel):
@@ -43,6 +50,7 @@ class QuestionListItem(BaseModel):
     slug: str
     title: str
     category: str
+    framework: Framework
     tags: list[str]
     difficulty: str
 

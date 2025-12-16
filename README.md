@@ -35,7 +35,7 @@ MLBites/
 ## Adding Questions
 
 Create a new folder in `db/` with:
-- `metadata.json`: `{"title": "...", "category": "...", "tags": [...], "difficulty": "Easy|Medium|Hard"}`
+- `metadata.json`: `{"title": "...", "category": "...", "framework": "pytorch|numpy", "tags": [...], "difficulty": "Easy|Medium|Hard", "relevant_questions": [...]}`
 - `question.md`: Markdown description
 - `starting_point.py`: Skeleton code
 - `tests.py`: Deterministic verification tests (`run_tests(candidate_module)`)

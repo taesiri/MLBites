@@ -38,8 +38,10 @@ This file contains the question's display information:
 {
     "title": "Your Question Title",
     "category": "Category Name",
+    "framework": "pytorch",
     "tags": ["tag1", "tag2", "tag3"],
-    "difficulty": "Easy"
+    "difficulty": "Easy",
+    "relevant_questions": []
 }
 ```
 
@@ -47,8 +49,10 @@ This file contains the question's display information:
 |-------|-------------|--------------|
 | `title` | Display title | Any string |
 | `category` | Topic grouping | "Basics", "CNN", "RNN", "Transformers", etc. |
+| `framework` | Primary implementation framework | `"pytorch"` or `"numpy"` |
 | `tags` | Searchable tags | Array of strings |
 | `difficulty` | Skill level | "Easy", "Medium", "Hard" |
+| `relevant_questions` | Related question slugs for recommendations | Array of existing `db/<slug>/` folder names |
 
 ### 3. Create `question.md`
 
