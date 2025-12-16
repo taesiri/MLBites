@@ -15,21 +15,19 @@ class SimpleMultiheadAttention(nn.Module):
         """A minimal multi-head self-attention module (batch-first).
 
         Args:
-            embed_dim: Model dimension E. Must be divisible by num_heads.
-            num_heads: Number of attention heads H.
+            embed_dim: Model dimension D. Must be divisible by num_heads.
+            num_heads: Number of attention heads.
             dropout_p: Dropout probability applied to attention weights.
             bias: Whether to use bias in the linear projections.
-
-        Notes:
-            - This is intentionally minimal and interview-friendly.
-            - The module should implement scaled dot-product self-attention:
-              Q = x Wq, K = x Wk, V = x Wv, then softmax(QK^T / sqrt(d)) V.
         """
         super().__init__()
-        # TODO: set self.embed_dim, self.num_heads, self.head_dim (E // H)
-        # TODO: create one projection for QKV: nn.Linear(embed_dim, 3 * embed_dim, bias=bias)
+        # TODO: store embed_dim, num_heads, head_dim (embed_dim // num_heads)
+        # TODO: compute and store scale = head_dim ** -0.5
+        # TODO: create fused QKV projection: nn.Linear(embed_dim, 3 * embed_dim, bias=bias)
+        #       name it self.qkv_proj
         # TODO: create output projection: nn.Linear(embed_dim, embed_dim, bias=bias)
-        # TODO: create dropout module for attention weights: nn.Dropout(dropout_p)
+        #       name it self.out_proj
+        # TODO: create dropout: nn.Dropout(dropout_p), name it self.attn_dropout
         raise NotImplementedError
 
     def forward(
@@ -40,21 +38,24 @@ class SimpleMultiheadAttention(nn.Module):
         """Run multi-head self-attention.
 
         Args:
-            x: Input tensor of shape (B, T, E).
-            key_padding_mask: Optional bool tensor of shape (B, T).
+            x: Input tensor of shape (B, L, D).
+            key_padding_mask: Optional bool tensor of shape (B, L).
                 True means "padding" (ignore that position as a key/value).
 
         Returns:
-            Tensor of shape (B, T, E).
+            Tensor of shape (B, L, D).
         """
-        # TODO: project to q, k, v (shape: B, T, E each)
-        # TODO: reshape into heads: (B, H, T, D) where D = E // H
-        # TODO: compute scores = (q @ k^T) / sqrt(D) with shape (B, H, T, T)
-        # TODO: apply key_padding_mask by setting masked key positions to -inf
-        # TODO: softmax over last dim to get attention weights
-        # TODO: apply dropout to attention weights
-        # TODO: compute output = attn @ v, then merge heads back to (B, T, E)
-        # TODO: apply out_proj and return
+        # TODO: get B, L, D from x.shape
+        # TODO: fused QKV projection -> [B, L, 3*D]
+        # TODO: reshape to [B, L, 3, n_heads, d_k]
+        # TODO: permute to [3, B, n_heads, L, d_k]
+        # TODO: unpack q, k, v (each [B, n_heads, L, d_k])
+        # TODO: compute attention scores: q @ k.transpose(-2, -1) -> [B, n_heads, L, L]
+        # TODO: scale scores by self.scale
+        # TODO: apply key_padding_mask (set masked positions to -inf)
+        # TODO: softmax over last dim
+        # TODO: apply dropout
+        # TODO: apply attention to values: attn @ v -> [B, n_heads, L, d_k]
+        # TODO: merge heads: transpose + view -> [B, L, D]
+        # TODO: final projection and return
         raise NotImplementedError
-
-

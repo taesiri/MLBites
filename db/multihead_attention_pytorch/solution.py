@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-import math
-
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
 
 class SimpleMultiheadAttention(nn.Module):
@@ -17,8 +16,8 @@ class SimpleMultiheadAttention(nn.Module):
         """A minimal multi-head self-attention module (batch-first).
 
         Args:
-            embed_dim: Model dimension E. Assumed divisible by num_heads.
-            num_heads: Number of attention heads H.
+            embed_dim: Model dimension D. Assumed divisible by num_heads.
+            num_heads: Number of attention heads.
             dropout_p: Dropout probability applied to attention weights.
             bias: Whether to use bias in the linear projections.
         """
@@ -26,6 +25,7 @@ class SimpleMultiheadAttention(nn.Module):
         self.embed_dim = embed_dim
         self.num_heads = num_heads
         self.head_dim = embed_dim // num_heads
+        self.scale = self.head_dim**-0.5
 
         self.qkv_proj = nn.Linear(embed_dim, 3 * embed_dim, bias=bias)
         self.out_proj = nn.Linear(embed_dim, embed_dim, bias=bias)
@@ -39,40 +39,35 @@ class SimpleMultiheadAttention(nn.Module):
         """Run multi-head self-attention.
 
         Args:
-            x: Input tensor of shape (B, T, E).
-            key_padding_mask: Optional bool tensor of shape (B, T).
+            x: Input tensor of shape (B, L, D).
+            key_padding_mask: Optional bool tensor of shape (B, L).
                 True means "padding" (ignore that position as a key/value).
 
         Returns:
-            Tensor of shape (B, T, E).
+            Tensor of shape (B, L, D).
         """
-        bsz, seq_len, _ = x.shape
+        B, L, D = x.shape
 
-        qkv = self.qkv_proj(x)  # (B, T, 3E)
-        q, k, v = qkv.chunk(3, dim=-1)
+        # Fused QKV projection
+        qkv = self.qkv_proj(x)  # [B, L, 3*D]
+        qkv = qkv.reshape(B, L, 3, self.num_heads, self.head_dim)  # [B, L, 3, n_heads, d_k]
+        qkv = qkv.permute(2, 0, 3, 1, 4)  # [3, B, n_heads, L, d_k]
+        q, k, v = qkv[0], qkv[1], qkv[2]  # each [B, n_heads, L, d_k]
 
-        # (B, T, E) -> (B, H, T, D)
-        def _split_heads(t: torch.Tensor) -> torch.Tensor:
-            t = t.view(bsz, seq_len, self.num_heads, self.head_dim)
-            return t.transpose(1, 2)
+        # Attention scores
+        scores = q @ k.transpose(-2, -1)  # [B, n_heads, L, L]
+        scores = scores * self.scale
 
-        q = _split_heads(q)
-        k = _split_heads(k)
-        v = _split_heads(v)
-
-        scale = 1.0 / math.sqrt(self.head_dim)
-        scores = (q * scale) @ k.transpose(-2, -1)  # (B, H, T, T)
-
+        # Apply mask
         if key_padding_mask is not None:
-            scores = scores.masked_fill(
-                key_padding_mask[:, None, None, :], float("-inf")
-            )
+            scores = scores.masked_fill(key_padding_mask[:, None, None, :], float("-inf"))
 
-        attn = scores.softmax(dim=-1)
+        # Softmax and dropout
+        attn = F.softmax(scores, dim=-1)
         attn = self.attn_dropout(attn)
 
-        out = attn @ v  # (B, H, T, D)
-        out = out.transpose(1, 2).contiguous().view(bsz, seq_len, self.embed_dim)
-        return self.out_proj(out)
-
-
+        # Apply attention to values
+        out = attn @ v  # [B, n_heads, L, d_k]
+        out = out.transpose(1, 2).contiguous().view(B, L, D)  # [B, L, D]
+        out = self.out_proj(out)
+        return out
