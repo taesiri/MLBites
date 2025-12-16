@@ -512,6 +512,12 @@ function renderQuestionDescription() {
     elements.questionContent.querySelectorAll('pre code').forEach((block) => {
         hljs.highlightElement(block);
     });
+    // Render MathJax formulas
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise([elements.questionContent]).catch((err) => {
+            console.warn('MathJax typeset error:', err);
+        });
+    }
 }
 
 function renderQuestionSolution() {
@@ -526,6 +532,12 @@ function renderQuestionSolution() {
     elements.questionContent.querySelectorAll('pre code').forEach((block) => {
         hljs.highlightElement(block);
     });
+    // Render MathJax formulas
+    if (window.MathJax && window.MathJax.typesetPromise) {
+        MathJax.typesetPromise([elements.questionContent]).catch((err) => {
+            console.warn('MathJax typeset error:', err);
+        });
+    }
 }
 
 async function setQuestionTab(tab) {

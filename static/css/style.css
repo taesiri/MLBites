@@ -1378,6 +1378,42 @@ body.question-fullscreen #question-panel .panel-header {
 }
 
 /* ============================================
+   MathJax Styles
+   ============================================ */
+
+/* Ensure MathJax formulas inherit proper colors */
+.markdown-body mjx-container {
+    color: var(--text-primary);
+}
+
+/* Display math (block equations) */
+.markdown-body mjx-container[display="true"] {
+    margin: 1.5em 0;
+    padding: 1em;
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-md);
+    border: 1px solid var(--border-primary);
+    overflow-x: auto;
+}
+
+/* Inline math */
+.markdown-body mjx-container:not([display="true"]) {
+    display: inline;
+    padding: 0 2px;
+}
+
+/* MathJax SVG styling */
+.markdown-body mjx-container svg {
+    color: var(--text-primary);
+}
+
+/* Ensure math doesn't overflow on small screens */
+.markdown-body mjx-container[display="true"] mjx-math {
+    max-width: 100%;
+    overflow-x: auto;
+}
+
+/* ============================================
    Responsive
    ============================================ */
 

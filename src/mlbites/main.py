@@ -51,6 +51,54 @@ templates = Jinja2Templates(directory=TEMPLATES_DIR)
 md = markdown.Markdown(extensions=["fenced_code", "codehilite", "tables"])
 
 
+def protect_math_for_markdown(text: str) -> tuple[str, dict[str, str]]:
+    """
+    Protect LaTeX math blocks from markdown processing.
+    Returns (protected_text, placeholder_map).
+    """
+    placeholders: dict[str, str] = {}
+    counter = [0]
+
+    def make_placeholder(match: re.Match) -> str:
+        content = match.group(0)
+        # Create a unique placeholder
+        placeholder = f"MATHPLACEHOLDER{counter[0]}ENDMATH"
+        counter[0] += 1
+        placeholders[placeholder] = content
+        return placeholder
+
+    # Protect display math first (greedy): \[...\]
+    # Use non-greedy matching to handle multiple blocks
+    text = re.sub(r"\\\[[\s\S]*?\\\]", make_placeholder, text)
+
+    # Protect inline math: \(...\)
+    text = re.sub(r"\\\(.*?\\\)", make_placeholder, text)
+
+    return text, placeholders
+
+
+def restore_math_from_placeholders(html: str, placeholders: dict[str, str]) -> str:
+    """Restore LaTeX math blocks after markdown processing."""
+    for placeholder, original in placeholders.items():
+        html = html.replace(placeholder, original)
+    return html
+
+
+def convert_markdown_with_math(text: str) -> str:
+    """Convert markdown to HTML while preserving LaTeX math notation."""
+    # Protect math blocks
+    protected_text, placeholders = protect_math_for_markdown(text)
+
+    # Convert markdown
+    md.reset()
+    html = md.convert(protected_text)
+
+    # Restore math blocks
+    html = restore_math_from_placeholders(html, placeholders)
+
+    return html
+
+
 def load_question_metadata(question_dir: Path) -> dict | None:
     """Load metadata.json from a question directory."""
     metadata_file = question_dir / "metadata.json"
@@ -158,8 +206,7 @@ async def get_question(slug: str):
     with open(question_md_file, "r") as f:
         question_md = f.read()
 
-    md.reset()
-    description_html = md.convert(question_md)
+    description_html = convert_markdown_with_math(question_md)
 
     # Load starting code
     starting_code_file = question_dir / "starting_point.py"
@@ -202,8 +249,7 @@ async def get_solution(slug: str):
     if solution_md_file.exists():
         with open(solution_md_file, "r") as f:
             solution_md = f.read()
-        md.reset()
-        solution_html = md.convert(solution_md)
+        solution_html = convert_markdown_with_math(solution_md)
 
     return QuestionSolution(
         slug=slug, solution_code=solution_code, solution_html=solution_html
