@@ -2,9 +2,12 @@ from __future__ import annotations
 
 import argparse
 import importlib.util
+import json
 import sys
 from pathlib import Path
 from types import ModuleType
+
+from .code_policy import validate_candidate_source
 
 
 def _load_module_from_path(path: Path, *, module_name: str) -> ModuleType:
@@ -14,6 +17,35 @@ def _load_module_from_path(path: Path, *, module_name: str) -> ModuleType:
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module
+
+
+def _load_framework(question_dir: Path) -> str:
+    meta_path = question_dir / "metadata.json"
+    if not meta_path.exists():
+        return "pytorch"
+    try:
+        data = json.loads(meta_path.read_text(encoding="utf-8"))
+    except Exception:  # noqa: BLE001
+        return "pytorch"
+    fw = data.get("framework")
+    return fw if fw in {"pytorch", "numpy"} else "pytorch"
+
+
+def _maybe_apply_posix_resource_limits() -> None:
+    """
+    Best-effort resource limits for the verifier subprocess.
+    This is not portable and intentionally minimal to avoid breaking torch.
+    """
+    try:
+        import resource  # type: ignore
+
+        # CPU time (seconds): hard stop if a candidate spins.
+        resource.setrlimit(resource.RLIMIT_CPU, (5, 6))
+
+        # No core dumps.
+        resource.setrlimit(resource.RLIMIT_CORE, (0, 0))
+    except Exception:  # noqa: BLE001
+        return
 
 
 def verify_question(slug: str, *, candidate_path: Path | None = None) -> None:
@@ -36,6 +68,21 @@ def verify_question(slug: str, *, candidate_path: Path | None = None) -> None:
     candidate_path = candidate_path.resolve()
     if not candidate_path.exists():
         raise FileNotFoundError(f"Missing candidate file: {candidate_path}")
+
+    _maybe_apply_posix_resource_limits()
+
+    # Policy gate (best-effort). This prevents obvious abuse and reduces
+    # accidental footguns, but is NOT a full sandbox.
+    framework = _load_framework(question_dir)
+    candidate_src = candidate_path.read_text(encoding="utf-8", errors="replace")
+    policy_issues = validate_candidate_source(candidate_src, framework=framework)
+    if policy_issues:
+        joined = "\n".join(f"- {m}" for m in policy_issues[:50])
+        raise RuntimeError(
+            "Candidate code rejected by policy:\n"
+            + joined
+            + ("\n- ... (truncated)" if len(policy_issues) > 50 else "")
+        )
 
     tests_mod = _load_module_from_path(tests_path, module_name=f"mlbites_tests_{slug}")
     if not hasattr(tests_mod, "run_tests"):

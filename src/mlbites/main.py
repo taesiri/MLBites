@@ -17,6 +17,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 
+from .code_policy import validate_candidate_source
 from .models import (
     FormatPythonRequest,
     FormatPythonResponse,
@@ -293,6 +294,15 @@ async def format_python(payload: FormatPythonRequest, request: Request):
         len(payload.code.encode("utf-8")),
     )
 
+    # Guardrail: avoid huge payloads feeding the formatter.
+    if len(payload.code.encode("utf-8", errors="replace")) > 150_000:
+        return FormatPythonResponse(
+            formatted_code=payload.code,
+            changed=False,
+            used_ruff=False,
+            error="Code too large to format (max 150000 bytes).",
+        )
+
     formatted, err = _run_ruff_format(payload.code, stdin_filename=payload.filename)
     dt_ms = (time.perf_counter() - t0) * 1000.0
 
@@ -351,6 +361,23 @@ async def run_code(payload: RunCodeRequest, request: Request):
     if not (question_dir / "tests.py").exists():
         raise HTTPException(status_code=404, detail="Question tests not found")
 
+    metadata = load_question_metadata(question_dir)
+    if not metadata:
+        raise HTTPException(status_code=404, detail="Question metadata not found")
+    framework = metadata.get("framework", "pytorch")
+
+    # Fail fast on obviously unsafe code before spawning a subprocess.
+    policy_issues = validate_candidate_source(payload.code, framework=framework)
+    if policy_issues:
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "message": "Candidate code rejected by policy.",
+                "issues": policy_issues[:50],
+                "truncated": len(policy_issues) > 50,
+            },
+        )
+
     timeout_s = 6.0
     code_bytes = len(payload.code.encode("utf-8", errors="replace"))
 
@@ -358,16 +385,37 @@ async def run_code(payload: RunCodeRequest, request: Request):
         candidate_path = Path(td) / "candidate.py"
         candidate_path.write_text(payload.code, encoding="utf-8")
 
-        env = os.environ.copy()
         src_dir = str(BASE_DIR / "src")
-        env["PYTHONPATH"] = src_dir + (
-            os.pathsep + env["PYTHONPATH"] if env.get("PYTHONPATH") else ""
+        runner_path = Path(td) / "runner.py"
+        runner_path.write_text(
+            "\n".join(
+                [
+                    "import sys",
+                    f"sys.path.insert(0, {src_dir!r})",
+                    "from mlbites.verify import main",
+                    "raise SystemExit(main())",
+                    "",
+                ]
+            ),
+            encoding="utf-8",
         )
+
+        # Minimal environment: do not leak server secrets via os.environ.
+        env: dict[str, str] = {
+            "PATH": os.environ.get("PATH", ""),
+            "PYTHONUNBUFFERED": "1",
+            "PYTHONHASHSEED": "0",
+        }
+        # Keep common temp/home vars so native libs don't crash in some setups.
+        for k in ("HOME", "TMPDIR", "TMP", "TEMP"):
+            v = os.environ.get(k)
+            if v:
+                env[k] = v
 
         cmd = [
             sys.executable,
-            "-m",
-            "mlbites.verify",
+            "-I",
+            str(runner_path),
             slug,
             "--candidate",
             str(candidate_path),
@@ -381,24 +429,47 @@ async def run_code(payload: RunCodeRequest, request: Request):
             timeout_s,
         )
 
+        # Use Popen so we can kill the entire process group on timeout
+        # (prevents forked children from surviving).
+        popen_kwargs: dict = {
+            "cwd": td,
+            "env": env,
+            "text": True,
+            "stdout": subprocess.PIPE,
+            "stderr": subprocess.PIPE,
+            "stdin": subprocess.DEVNULL,
+        }
+        if os.name == "posix":
+            popen_kwargs["start_new_session"] = True
+
+        proc = subprocess.Popen(cmd, **popen_kwargs)  # noqa: S603
         try:
-            proc = subprocess.run(
-                cmd,
-                cwd=BASE_DIR,
-                env=env,
-                text=True,
-                capture_output=True,
-                check=False,
-                timeout=timeout_s,
-            )
-            stdout = proc.stdout or ""
-            stderr = proc.stderr or ""
+            stdout, stderr = proc.communicate(timeout=timeout_s)
             exit_code = proc.returncode
-        except subprocess.TimeoutExpired as e:
+        except subprocess.TimeoutExpired:
+            # Kill process group if possible; otherwise kill just the process.
+            try:
+                if os.name == "posix":
+                    import signal
+
+                    os.killpg(proc.pid, signal.SIGKILL)
+                else:
+                    proc.kill()
+            except Exception:  # noqa: BLE001
+                try:
+                    proc.kill()
+                except Exception:  # noqa: BLE001
+                    pass
+            try:
+                stdout, stderr = proc.communicate(timeout=1.0)
+            except Exception:  # noqa: BLE001
+                stdout = ""
+                stderr = ""
+
             dt_ms = (time.perf_counter() - t0) * 1000.0
-            stdout = (e.stdout or "") if isinstance(e.stdout, str) else ""
-            stderr = (e.stderr or "") if isinstance(e.stderr, str) else ""
-            stderr = (stderr + "\n[timeout] Execution timed out.\n").lstrip("\n")
+            stderr = ((stderr or "") + "\n[timeout] Execution timed out.\n").lstrip(
+                "\n"
+            )
             logger.warning(
                 "run_code timeout client=%s question=%s duration_ms=%.1f",
                 client,
@@ -408,7 +479,7 @@ async def run_code(payload: RunCodeRequest, request: Request):
             return RunCodeResponse(
                 status="timeout",
                 exit_code=None,
-                stdout=_truncate_output(stdout),
+                stdout=_truncate_output(stdout or ""),
                 stderr=_truncate_output(stderr),
                 duration_ms=dt_ms,
             )
