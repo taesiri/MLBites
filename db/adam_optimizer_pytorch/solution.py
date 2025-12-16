@@ -33,12 +33,13 @@ class Adam:
 
     @torch.no_grad()
     def step(self) -> None:
-        """Update all parameters in-place using Adam (PyTorch-style bias correction)."""
+        """Update all parameters in-place using Adam (PyTorch-style ordering)."""
         self.t += 1
 
         bias_correction1 = 1.0 - self.beta1**self.t
         bias_correction2 = 1.0 - self.beta2**self.t
-        step_size = self.lr * math.sqrt(bias_correction2) / bias_correction1
+        step_size = self.lr / bias_correction1
+        bc2_sqrt = math.sqrt(bias_correction2)
 
         for i, p in enumerate(self.params):
             g = p.grad
@@ -51,5 +52,7 @@ class Adam:
             m.mul_(self.beta1).add_(g, alpha=1.0 - self.beta1)
             v.mul_(self.beta2).addcmul_(g, g, value=1.0 - self.beta2)
 
-            denom = v.sqrt().add_(self.eps)
+            # Match torch.optim.Adam ordering:
+            # denom = (sqrt(v) / sqrt(bias_correction2)).add_(eps)
+            denom = v.sqrt().div_(bc2_sqrt).add_(self.eps)
             p.addcdiv_(m, denom, value=-step_size)

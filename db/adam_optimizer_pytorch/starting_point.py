@@ -38,11 +38,12 @@ class Adam:
             m = beta1*m + (1-beta1)*g
             v = beta2*v + (1-beta2)*(g*g)
 
-        Use the same bias-correction style as torch.optim.Adam:
+        Use the same ordering as torch.optim.Adam:
             bias_correction1 = 1 - beta1**t
             bias_correction2 = 1 - beta2**t
-            step_size = lr * sqrt(bias_correction2) / bias_correction1
-            p -= step_size * m / (sqrt(v) + eps)
+            step_size = lr / bias_correction1
+            denom = sqrt(v) / sqrt(bias_correction2) + eps
+            p -= step_size * m / denom
 
         Returns:
             None. Updates parameters in-place.
