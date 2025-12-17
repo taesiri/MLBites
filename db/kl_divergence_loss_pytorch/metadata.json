@@ -1,0 +1,13 @@
+{
+    "title": "Implement KL Divergence Loss",
+    "category": "Loss Functions",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "loss-function",
+        "kl-divergence",
+        "probability-distributions"
+    ],
+    "difficulty": "Easy"
+}
+

@@ -1,0 +1,14 @@
+{
+    "title": "Train GPT-2 on Dummy Data with Adam",
+    "category": "Transformers",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "transformers",
+        "gpt",
+        "training-loop",
+        "adam",
+        "language-model"
+    ],
+    "difficulty": "Hard"
+}

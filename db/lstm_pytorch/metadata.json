@@ -1,0 +1,14 @@
+{
+  "title": "Implement LSTM from Scratch",
+  "category": "Recurrent Networks",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "lstm",
+    "recurrent-networks",
+    "sequence-modeling",
+    "gates"
+  ],
+  "difficulty": "Medium"
+}
+

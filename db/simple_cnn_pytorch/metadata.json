@@ -1,0 +1,15 @@
+{
+    "title": "Implement a Simple CNN",
+    "category": "Neural Networks",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "cnn",
+        "convolutional-neural-network",
+        "image-classification",
+        "deep-learning"
+    ],
+    "difficulty": "Easy",
+    "relevant_questions": []
+}
+

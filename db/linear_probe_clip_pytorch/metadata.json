@@ -1,0 +1,15 @@
+{
+    "title": "Linear Probe on CLIP Features",
+    "category": "Transfer Learning",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "clip",
+        "linear-probe",
+        "transfer-learning",
+        "classification"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": []
+}
+

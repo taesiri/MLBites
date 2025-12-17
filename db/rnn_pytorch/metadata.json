@@ -1,0 +1,15 @@
+{
+    "title": "Implement Basic RNN from Scratch",
+    "category": "Basics",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "rnn",
+        "recurrent-neural-network",
+        "sequence-modeling",
+        "deep-learning"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": []
+}
+

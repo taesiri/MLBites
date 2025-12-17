@@ -1,0 +1,15 @@
+{
+  "title": "Implement GPT-2 from Scratch",
+  "category": "Transformers",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "transformers",
+    "gpt",
+    "language-model",
+    "causal-attention",
+    "decoder-only"
+  ],
+  "difficulty": "Hard"
+}
+

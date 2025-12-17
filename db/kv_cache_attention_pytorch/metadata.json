@@ -1,0 +1,15 @@
+{
+  "title": "Implement KV Cache in Multi-Head Attention",
+  "category": "Transformers",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "transformers",
+    "attention",
+    "kv-cache",
+    "inference",
+    "autoregressive"
+  ],
+  "difficulty": "Medium"
+}
+

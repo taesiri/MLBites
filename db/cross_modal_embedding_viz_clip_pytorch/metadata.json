@@ -1,0 +1,17 @@
+{
+    "title": "Cross-Modal Embedding Visualization (CLIP + t-SNE/UMAP)",
+    "category": "Visualization",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "clip",
+        "visualization",
+        "t-sne",
+        "umap",
+        "dimensionality-reduction",
+        "embeddings"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": ["linear_probe_clip_pytorch"]
+}
+
