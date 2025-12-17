@@ -1,69 +1,98 @@
 # Linear Regression
 
 ## Problem
-Linear regression fits a line (or hyperplane) that best predicts a continuous target from input features by minimizing mean squared error.
+Linear regression is one of the most fundamental supervised learning algorithms. It fits a linear model to data by finding the weights that minimize the sum of squared errors between predictions and targets. The closed-form solution (normal equation) allows computing the optimal weights directly without iterative optimization.
 
 ## Task
-Implement a minimal ordinary least squares (OLS) linear regression model in NumPy with:
-- `fit(X, y)` to learn coefficients (and an optional intercept)
-- `predict(X)` to produce predictions
+Implement linear regression using the normal equation in NumPy:
+- `fit(X, y)`: compute optimal weights using the closed-form solution
+- `predict(X, weights)`: compute predictions for given features and weights
 
-Use a least-squares solve (e.g., `np.linalg.lstsq`) rather than explicitly computing a matrix inverse.
+These two functions form the core of a simple linear regression model.
 
 ## Function Signature
 
 ```python
 import numpy as np
 
-class LinearRegression:
-    def __init__(self, fit_intercept: bool = True) -> None: ...
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "LinearRegression": ...
-    def predict(self, X: np.ndarray) -> np.ndarray: ...
+def fit(X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Fit linear regression weights using the normal equation."""
+    ...
+
+def predict(X: np.ndarray, weights: np.ndarray) -> np.ndarray:
+    """Compute predictions given features and weights."""
+    ...
 ```
 
 ## Inputs and Outputs
 - **inputs**:
-  - `X`: NumPy array of shape `(n_samples, n_features)` (float)
-  - `y`: NumPy array of shape `(n_samples,)` (float)
-  - `fit_intercept`: if `True`, learn an intercept term
+  - `fit`:
+    - `X`: NumPy array of shape `(n_samples, n_features)` (float) — feature matrix
+    - `y`: NumPy array of shape `(n_samples,)` (float) — target values
+  - `predict`:
+    - `X`: NumPy array of shape `(n_samples, n_features)` (float) — feature matrix
+    - `weights`: NumPy array of shape `(n_features,)` (float) — model weights
 - **outputs**:
-  - `fit(...)` returns `self` and sets:
-    - `coef_`: NumPy array of shape `(n_features,)`
-    - `intercept_`: float
-  - `predict(X)` returns NumPy array of shape `(n_samples,)`
+  - `fit`: NumPy array of shape `(n_features,)` with the optimal weights
+  - `predict`: NumPy array of shape `(n_samples,)` with predicted values
 
 ## Constraints
 - Must be solvable in 20–30 minutes.
-- Interview-friendly: minimal implementation (no scikit-learn, no extra features).
+- Interview-friendly: minimal implementation without extra features.
 - Assume inputs satisfy the documented contract; avoid extra validation.
+- Assume `X` has full column rank (the normal equation is solvable).
+- No bias/intercept term is required — assume it's included in `X` if needed.
 - Allowed libs: NumPy (`numpy`) and Python standard library.
 
 ## Examples
 
-### Example 1 (1 feature with intercept)
+### Example 1 (simple 1D regression)
 ```python
 import numpy as np
 
-X = np.array([[0.0], [1.0], [2.0]])
-y = np.array([1.0, 3.0, 5.0])  # y = 2*x + 1
+X = np.array([[1.0], [2.0], [3.0], [4.0]])
+y = np.array([2.0, 4.0, 6.0, 8.0])
 
-model = LinearRegression(fit_intercept=True).fit(X, y)
-model.coef_      # expected: array([2.0])
-model.intercept_ # expected: 1.0
+weights = fit(X, y)
+# expected: array([2.0])
 
-model.predict(np.array([[3.0], [4.0]]))  # expected: array([7.0, 9.0])
+predictions = predict(X, weights)
+# expected: array([2.0, 4.0, 6.0, 8.0])
 ```
 
-### Example 2 (2 features, no noise)
+### Example 2 (2D features)
 ```python
 import numpy as np
 
-X = np.array([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
-y = np.array([3.5, -1.5, 1.5])  # y = 3*x1 - 2*x2 + 0.5
+X = np.array([
+    [1.0, 0.0],
+    [0.0, 1.0],
+    [1.0, 1.0]
+])
+y = np.array([1.0, 2.0, 3.0])
 
-model = LinearRegression(fit_intercept=True).fit(X, y)
-model.coef_      # expected: array([3.0, -2.0])
-model.intercept_ # expected: 0.5
+weights = fit(X, y)
+# expected: array([1.0, 2.0])
+
+predictions = predict(X, weights)
+# expected: array([1.0, 2.0, 3.0])
 ```
 
+### Example 3 (with bias column)
+```python
+import numpy as np
 
+# Include bias as first column of ones
+X = np.array([
+    [1.0, 1.0],
+    [1.0, 2.0],
+    [1.0, 3.0]
+])
+y = np.array([3.0, 5.0, 7.0])  # y = 1 + 2*x
+
+weights = fit(X, y)
+# expected: array([1.0, 2.0])  # bias=1, slope=2
+
+predictions = predict(X, weights)
+# expected: array([3.0, 5.0, 7.0])
+```

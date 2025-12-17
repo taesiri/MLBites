@@ -3,55 +3,34 @@ from __future__ import annotations
 import numpy as np
 
 
-class LinearRegression:
-    def __init__(self, fit_intercept: bool = True) -> None:
-        """A minimal ordinary least squares (OLS) linear regression model.
+def fit(X: np.ndarray, y: np.ndarray) -> np.ndarray:
+    """Fit linear regression weights using the normal equation.
 
-        Args:
-            fit_intercept: If True, learn an intercept term.
+    Args:
+        X: Shape (n_samples, n_features). Feature matrix.
+        y: Shape (n_samples,). Target values.
 
-        Attributes (after fit):
-            coef_: Shape (n_features,). The learned coefficients.
-            intercept_: The learned intercept (float).
-        """
-        self.fit_intercept = fit_intercept
-        self.coef_: np.ndarray | None = None
-        self.intercept_: float = 0.0
-
-    def fit(self, X: np.ndarray, y: np.ndarray) -> "LinearRegression":
-        """Fit OLS linear regression using least squares.
-
-        Args:
-            X: Shape (n_samples, n_features).
-            y: Shape (n_samples,).
-
-        Returns:
-            self
-        """
-        if self.fit_intercept:
-            ones = np.ones((X.shape[0], 1), dtype=X.dtype)
-            X_design = np.concatenate([X, ones], axis=1)
-            beta, *_ = np.linalg.lstsq(X_design, y, rcond=None)
-            self.coef_ = beta[:-1]
-            self.intercept_ = float(beta[-1])
-        else:
-            beta, *_ = np.linalg.lstsq(X, y, rcond=None)
-            self.coef_ = beta
-            self.intercept_ = 0.0
-        return self
-
-    def predict(self, X: np.ndarray) -> np.ndarray:
-        """Predict targets for inputs X.
-
-        Args:
-            X: Shape (n_samples, n_features).
-
-        Returns:
-            Predicted y values of shape (n_samples,).
-        """
-        coef = self.coef_
-        if coef is None:
-            raise RuntimeError("Model is not fitted yet. Call fit(X, y) first.")
-        return X @ coef + self.intercept_
+    Returns:
+        Optimal weights of shape (n_features,).
+    """
+    # Normal equation: w = (X^T X)^(-1) X^T y
+    # Using np.linalg.solve is more numerically stable than explicit inverse
+    # Solve: (X^T X) w = X^T y
+    XtX = X.T @ X
+    Xty = X.T @ y
+    weights = np.linalg.solve(XtX, Xty)
+    return weights
 
 
+def predict(X: np.ndarray, weights: np.ndarray) -> np.ndarray:
+    """Compute predictions given features and weights.
+
+    Args:
+        X: Shape (n_samples, n_features). Feature matrix.
+        weights: Shape (n_features,). Model weights.
+
+    Returns:
+        Predictions of shape (n_samples,).
+    """
+    # Linear prediction: y = X @ w
+    return X @ weights

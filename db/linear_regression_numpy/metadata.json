@@ -5,10 +5,10 @@
     "tags": [
         "numpy",
         "linear-regression",
-        "least-squares",
-        "normal-equation",
-        "regression"
+        "supervised-learning",
+        "regression",
+        "normal-equation"
     ],
-    "difficulty": "Easy",
-    "relevant_questions": []
+    "difficulty": "Easy"
 }
+

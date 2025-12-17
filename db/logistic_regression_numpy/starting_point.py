@@ -3,43 +3,62 @@ from __future__ import annotations
 import numpy as np
 
 
-def fit_logistic_regression(
-    X: np.ndarray,
-    y: np.ndarray,
-    *,
-    lr: float = 0.1,
-    num_steps: int = 1000,
-    l2: float = 0.0,
-) -> tuple[np.ndarray, float]:
-    """Fit binary logistic regression with full-batch gradient descent.
-
-    Model:
-        p(y=1|x) = sigmoid(x @ w + b)
-
-    Loss (average over examples) with optional L2 on w:
-        L(w,b) = mean( -y*log(p) - (1-y)*log(1-p) ) + 0.5*l2*||w||^2
+def sigmoid(z: np.ndarray) -> np.ndarray:
+    """Compute the sigmoid activation function element-wise.
 
     Args:
-        X: Array of shape (n, d) of float features.
-        y: Array of shape (n,) with binary labels in {0, 1}.
-        lr: Learning rate.
-        num_steps: Number of gradient descent steps.
-        l2: L2 regularization strength (applied to w only).
+        z: Input array of any shape.
 
     Returns:
-        (w, b) where w has shape (d,) and b is a float.
+        Sigmoid values, same shape as input.
     """
-    # TODO:
-    # - Initialize w = zeros(d,), b = 0.0
-    # - For num_steps steps:
-    #   - logits = X @ w + b
-    #   - p = sigmoid(logits) = 1 / (1 + exp(-logits))
-    #   - grad_logits = (p - y) / n
-    #   - grad_w = X.T @ grad_logits + l2 * w
-    #   - grad_b = grad_logits.sum()
-    #   - w -= lr * grad_w
-    #   - b -= lr * grad_b
-    # - Return w, b
     raise NotImplementedError
 
 
+def compute_loss(X: np.ndarray, y: np.ndarray, w: np.ndarray, b: float) -> float:
+    """Compute the binary cross-entropy loss.
+
+    Args:
+        X: Feature matrix of shape (n_samples, n_features).
+        y: Binary labels of shape (n_samples,).
+        w: Weight vector of shape (n_features,).
+        b: Bias term (scalar).
+
+    Returns:
+        Mean binary cross-entropy loss.
+    """
+    raise NotImplementedError
+
+
+def compute_gradients(
+    X: np.ndarray, y: np.ndarray, w: np.ndarray, b: float
+) -> tuple[np.ndarray, float]:
+    """Compute gradients of the loss with respect to weights and bias.
+
+    Args:
+        X: Feature matrix of shape (n_samples, n_features).
+        y: Binary labels of shape (n_samples,).
+        w: Weight vector of shape (n_features,).
+        b: Bias term (scalar).
+
+    Returns:
+        Tuple (dw, db) where dw has shape (n_features,) and db is a scalar.
+    """
+    raise NotImplementedError
+
+
+def train(
+    X: np.ndarray, y: np.ndarray, lr: float, n_iters: int
+) -> tuple[np.ndarray, float]:
+    """Train logistic regression using gradient descent.
+
+    Args:
+        X: Feature matrix of shape (n_samples, n_features).
+        y: Binary labels of shape (n_samples,).
+        lr: Learning rate.
+        n_iters: Number of gradient descent iterations.
+
+    Returns:
+        Tuple (w, b) of trained weights and bias.
+    """
+    raise NotImplementedError

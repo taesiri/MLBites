@@ -1,81 +1,102 @@
-# Implement Logistic Regression
+# Logistic Regression from Scratch
 
 ## Problem
-Logistic regression is a classic baseline for binary classification. Given feature vectors \(X\) and binary labels \(y \in \{0, 1\}\), it learns weights \(w\) and bias \(b\) so that:
-\[
-p(y=1 \mid x) = \sigma(x^\top w + b)
-\]
-where \(\sigma(\cdot)\) is the sigmoid function.
+
+Logistic regression is a fundamental binary classification algorithm. It uses the sigmoid function to map linear combinations of features to probabilities, and is trained by minimizing the binary cross-entropy loss using gradient descent.
 
 ## Task
-Implement a **minimal** logistic regression trainer using **full-batch gradient descent** in NumPy. Your function should:
-- initialize parameters to zeros,
-- perform `num_steps` gradient descent updates on the **average** binary cross-entropy loss,
-- optionally include L2 regularization on `w`,
-- return the learned `(w, b)`.
+
+Implement the following functions in NumPy:
+
+1. `sigmoid(z)` — compute the sigmoid activation
+2. `compute_loss(X, y, w, b)` — compute the binary cross-entropy loss
+3. `compute_gradients(X, y, w, b)` — compute gradients of loss w.r.t. weights and bias
+4. `train(X, y, lr, n_iters)` — train logistic regression using gradient descent
 
 ## Function Signature
 
 ```python
-def fit_logistic_regression(
-    X: np.ndarray,
-    y: np.ndarray,
-    *,
-    lr: float = 0.1,
-    num_steps: int = 1000,
-    l2: float = 0.0,
-) -> tuple[np.ndarray, float]:
-    ...
+import numpy as np
+
+def sigmoid(z: np.ndarray) -> np.ndarray: ...
+
+def compute_loss(X: np.ndarray, y: np.ndarray, w: np.ndarray, b: float) -> float: ...
+
+def compute_gradients(
+    X: np.ndarray, y: np.ndarray, w: np.ndarray, b: float
+) -> tuple[np.ndarray, float]: ...
+
+def train(
+    X: np.ndarray, y: np.ndarray, lr: float, n_iters: int
+) -> tuple[np.ndarray, float]: ...
 ```
 
 ## Inputs and Outputs
-- **inputs**:
-  - `X`: `np.ndarray` of shape `(n, d)` (float), design matrix
-  - `y`: `np.ndarray` of shape `(n,)` (0/1), binary labels
-  - `lr`: learning rate (float)
-  - `num_steps`: number of gradient descent steps (int)
-  - `l2`: L2 regularization strength (float). Use L2 penalty \(\tfrac{1}{2} \lambda \|w\|_2^2\).
-- **outputs**:
-  - `w`: `np.ndarray` of shape `(d,)`
-  - `b`: `float` scalar bias
+
+### `sigmoid`
+- **Input**: `z` — array of any shape, float
+- **Output**: element-wise sigmoid values, same shape as input
+
+### `compute_loss`
+- **Input**:
+  - `X` — shape `(n_samples, n_features)`, feature matrix
+  - `y` — shape `(n_samples,)`, binary labels (0 or 1)
+  - `w` — shape `(n_features,)`, weight vector
+  - `b` — scalar bias term
+- **Output**: scalar float, the mean binary cross-entropy loss
+
+### `compute_gradients`
+- **Input**: same as `compute_loss`
+- **Output**: tuple `(dw, db)` where:
+  - `dw` — shape `(n_features,)`, gradient w.r.t. weights
+  - `db` — scalar, gradient w.r.t. bias
+
+### `train`
+- **Input**:
+  - `X` — shape `(n_samples, n_features)`, feature matrix
+  - `y` — shape `(n_samples,)`, binary labels (0 or 1)
+  - `lr` — learning rate (positive float)
+  - `n_iters` — number of gradient descent iterations
+- **Output**: tuple `(w, b)` — trained weights and bias (initialized to zeros)
 
 ## Constraints
+
 - Must be solvable in 20–30 minutes.
-- Interview-friendly: keep it minimal and fully vectorized.
+- Interview-friendly: no frameworks, no extra features.
 - Assume inputs satisfy the documented contract; avoid extra validation.
 - Allowed libs: NumPy (`numpy`) and Python standard library.
-- Use **full-batch** gradient descent and the **average** loss over examples.
+- Use numerical stability best practices (clip values to avoid log(0)).
 
 ## Examples
 
-### Example 1 (one gradient step)
-
+### Example 1 (sigmoid)
 ```python
 import numpy as np
 
-X = np.array([[1.0, 0.0], [0.0, 1.0]])
-y = np.array([1.0, 0.0])
-
-w, b = fit_logistic_regression(X, y, lr=1.0, num_steps=1, l2=0.0)
-print(w, b)
-# Expected:
-# w ≈ [ 0.25 -0.25]
-# b = 0.0
+z = np.array([0.0, 2.0, -2.0])
+s = sigmoid(z)
+# expected: [0.5, 0.88079708, 0.11920292]
 ```
 
-### Example 2 (one gradient step)
-
+### Example 2 (loss computation)
 ```python
 import numpy as np
 
-X = np.array([[0.0], [1.0], [2.0]])
-y = np.array([0.0, 0.0, 1.0])
+X = np.array([[1.0, 2.0], [2.0, 1.0], [3.0, 3.0]])
+y = np.array([0, 0, 1])
+w = np.array([0.1, 0.2])
+b = -0.5
 
-w, b = fit_logistic_regression(X, y, lr=0.5, num_steps=1, l2=0.0)
-print(w, b)
-# Expected:
-# w ≈ [0.08333333]
-# b ≈ -0.08333333
+loss = compute_loss(X, y, w, b)
+# expected: approximately 0.546
 ```
 
+### Example 3 (training)
+```python
+import numpy as np
 
+X = np.array([[0.0, 0.0], [0.0, 1.0], [1.0, 0.0], [1.0, 1.0]])
+y = np.array([0, 0, 0, 1])  # AND gate
+w, b = train(X, y, lr=1.0, n_iters=1000)
+# After training, sigmoid(X @ w + b) should be close to y
+```

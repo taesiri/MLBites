@@ -90,14 +90,15 @@ Provide at least 2 deterministic examples with expected outputs.
 
 ---
 
-## starting_point.py (STRICT)
+## starting_point.py (STRICT + NO COMMENTS)
 
 - Contains ONLY:
   - imports (minimal)
-  - function/class signature
-  - docstring describing inputs/outputs and TODO steps
-  - Not implemented body: raise NotImplementedError
-- Must NOT contain the final logic.
+  - function/class signature with type hints
+  - minimal docstring (Args/Returns only, no implementation hints)
+  - Not implemented body: `raise NotImplementedError`
+- **NO inline comments** – this prevents candidates from "cheating" by reading hints.
+- Must NOT contain the final logic or algorithmic hints.
 - Must be runnable (no syntax errors).
 
 Template:
@@ -106,7 +107,7 @@ Template:
 from __future__ import annotations
 
 def <name>(...):
-    \"\"\"<brief docstring>
+    \"\"\"<brief one-line description>
 
     Args:
         ...
@@ -114,7 +115,6 @@ def <name>(...):
     Returns:
         ...
     \"\"\"
-    # TODO: implement
     raise NotImplementedError
 
 
@@ -162,12 +162,15 @@ Notes:
 
 ⸻
 
-solution.py (INTERVIEW-FRIENDLY + MINIMAL)
+## solution.py (INTERVIEW-FRIENDLY + WELL-COMMENTED)
 
 - Minimal reference implementation, readable in one sitting.
 - Should be realistically implementable in ~20 minutes (no more than 30).
 - Assume inputs satisfy the stated constraints; **do not add extra defensive checks** unless required by the prompt/tests.
 - Keep it direct: clear variable names, straightforward steps, no unnecessary abstractions/classes.
+- **Include inline comments** explaining key steps, formulas, and non-obvious logic.
+  - Comments help candidates learn from the solution after attempting the problem.
+  - Aim for 1 comment per logical block or important formula.
 - Deterministic + test-friendly:
   - no prints
   - no input()
@@ -177,22 +180,37 @@ solution.py (INTERVIEW-FRIENDLY + MINIMAL)
 
 ⸻
 
-solution.md (STRICT STRUCTURE)
+## solution.md (STRICT STRUCTURE + OPTIONAL MATH)
 
-Approach
-
+### Approach
 High-level reasoning, 5–12 bullets.
 
-Correctness
+### Math (optional)
+If the problem involves formulas (e.g., loss functions, gradient updates, attention scores), include them using **MathJax** syntax for clarity:
+- Inline: `\( ... \)` (e.g., `\(\alpha \cdot x + \beta\)`)
+- Block: `\[ ... \]` for standalone equations
 
+**Do NOT use `$...$` or `$$...$$`** — use `\( \)` and `\[ \]` instead.
+
+Example:
+```
+The Adam update rule:
+
+\[m_t = \beta_1 m_{t-1} + (1 - \beta_1) g_t\]
+\[v_t = \beta_2 v_{t-1} + (1 - \beta_2) g_t^2\]
+\[\hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}\]
+\[\theta_t = \theta_{t-1} - \frac{\alpha \hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}\]
+```
+
+Only add math when it genuinely aids understanding; skip for trivial problems.
+
+### Correctness
 Explain why it works (reference edge cases).
 
-Complexity
-
+### Complexity
 Time and space complexity.
 
-Common Pitfalls
-
+### Common Pitfalls
 3–6 bullets.
 
 Keep it short and practical.

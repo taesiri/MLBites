@@ -1,16 +1,13 @@
 {
-  "title": "Implement Logistic Regression",
-  "category": "Basics",
-  "framework": "numpy",
-  "tags": [
-    "numpy",
-    "logistic-regression",
-    "classification",
-    "gradient-descent",
-    "cross-entropy"
-  ],
-  "difficulty": "Medium",
-  "relevant_questions": []
+    "title": "Logistic Regression from Scratch",
+    "category": "Basics",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "logistic-regression",
+        "classification",
+        "gradient-descent",
+        "binary-classification"
+    ],
+    "difficulty": "Easy"
 }
-
-
