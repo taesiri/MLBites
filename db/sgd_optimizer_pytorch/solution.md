@@ -2,7 +2,7 @@
 
 Stochastic Gradient Descent (SGD) is the foundational optimization algorithm in deep learning. The basic update rule moves parameters in the direction opposite to the gradient, scaled by a learning rate.
 
-### Basic SGD Update
+### Vanilla SGD
 
 \[
 \theta_{t+1} = \theta_t - \alpha \cdot g_t
@@ -15,79 +15,48 @@ where:
 
 ### Weight Decay (L2 Regularization)
 
-Weight decay adds a penalty term proportional to the parameter magnitude, which discourages large weights:
-
-\[
-g_t \leftarrow g_t + \lambda \cdot \theta_t
-\]
-
-where \( \lambda \) is the weight decay coefficient. This is equivalent to adding \( \frac{\lambda}{2} \|\theta\|^2 \) to the loss function.
-
-### Momentum
-
-Momentum accelerates convergence by accumulating a velocity vector in the direction of persistent gradients:
-
-\[
-v_t = \mu \cdot v_{t-1} + g_t
-\]
-
-\[
-\theta_{t+1} = \theta_t - \alpha \cdot v_t
-\]
-
-where:
-- \( v_t \) is the velocity (momentum buffer)
-- \( \mu \) is the momentum coefficient (typically 0.9)
-
-Momentum helps:
-- Dampen oscillations in high-curvature directions
-- Accelerate movement along consistent gradient directions
-- Escape shallow local minima
-
-### Complete SGD Update (PyTorch Style)
-
-Combining weight decay and momentum, the full update per parameter is:
+Weight decay adds a penalty term proportional to the parameter magnitude, discouraging large weights:
 
 \[
 d_t = g_t + \lambda \cdot \theta_t
 \]
 
-\[
-v_t = \mu \cdot v_{t-1} + d_t
-\]
+where \( \lambda \) is the weight decay coefficient. This is equivalent to adding \( \frac{\lambda}{2} \|\theta\|^2 \) to the loss function. The update becomes:
 
 \[
-\theta_{t+1} = \theta_t - \alpha \cdot v_t
+\theta_{t+1} = \theta_t - \alpha \cdot d_t
 \]
 
-When \( \mu = 0 \), momentum is disabled and we use \( d_t \) directly instead of \( v_t \).
+Expanding:
+
+\[
+\theta_{t+1} = \theta_t - \alpha \cdot g_t - \alpha \lambda \cdot \theta_t = (1 - \alpha \lambda) \theta_t - \alpha \cdot g_t
+\]
+
+This shows that weight decay shrinks the parameters toward zero at each step.
 
 ---
 
 ## Approach
 
 - Store parameters and hyperparameters in `__init__`.
-- If momentum is enabled, create a per-parameter buffer initialized to zeros.
 - In `step()`, iterate over parameters:
   - Skip if gradient is `None`.
   - Apply weight decay to the gradient if enabled.
-  - Update momentum buffer and use it as the effective gradient if momentum is enabled.
-  - Update the parameter in-place.
+  - Update the parameter in-place: \( p \leftarrow p - \alpha \cdot d \).
 
 ## Correctness
 
 - Weight decay matches the standard L2 regularization form used by `torch.optim.SGD`.
-- Momentum buffers accumulate past gradients with exponential decay, matching SGD momentum behavior.
 - Parameters with `grad is None` are skipped, consistent with PyTorch optimizers.
 
 ## Complexity
 
 - **Time:** \( O\left(\sum_i |p_i|\right) \) per step.
-- **Space:** \( O\left(\sum_i |p_i|\right) \) for momentum buffers when momentum is enabled.
+- **Space:** \( O(1) \) additional space (updates are in-place).
 
 ## Common Pitfalls
 
-- Forgetting to apply weight decay to the gradient before momentum.
-- Updating momentum buffers with the wrong tensor (must use the current effective gradient).
+- Forgetting to apply weight decay to the gradient when enabled.
 - Performing updates without `torch.no_grad()` (accidentally tracking optimizer ops in the graph).
 - Not skipping parameters with `grad is None`.

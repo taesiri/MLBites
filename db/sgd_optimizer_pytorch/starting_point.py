@@ -8,15 +8,13 @@ class SGD:
         self,
         params: list[torch.Tensor],
         lr: float = 1e-2,
-        momentum: float = 0.0,
         weight_decay: float = 0.0,
     ) -> None:
-        """A minimal SGD optimizer with optional momentum and weight decay.
+        """A minimal SGD optimizer with optional weight decay.
 
         Args:
             params: List of parameter tensors to optimize.
             lr: Learning rate.
-            momentum: Momentum factor (0.0 disables momentum).
             weight_decay: L2 penalty coefficient.
         """
         raise NotImplementedError

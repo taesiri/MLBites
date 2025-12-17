@@ -21,13 +21,13 @@ def run_tests(candidate: ModuleType) -> None:
     torch.manual_seed(0)
     dtype = torch.float64
 
-    # --- test 1: plain SGD matches torch.optim.SGD ---
+    # --- test 1: plain SGD (no weight decay) matches torch.optim.SGD ---
     w0 = torch.tensor([1.0, -2.0, 0.5], dtype=dtype, requires_grad=True)
     w1 = w0.detach().clone().requires_grad_(True)
 
     lr = 0.1
-    opt_candidate = candidate.SGD([w0], lr=lr, momentum=0.0, weight_decay=0.0)
-    opt_torch = torch.optim.SGD([w1], lr=lr, momentum=0.0, weight_decay=0.0)
+    opt_candidate = candidate.SGD([w0], lr=lr, weight_decay=0.0)
+    opt_torch = torch.optim.SGD([w1], lr=lr, weight_decay=0.0)
 
     target = torch.tensor([3.0, -1.0, 2.0], dtype=dtype)
 
@@ -51,20 +51,15 @@ def run_tests(candidate: ModuleType) -> None:
             msg=f"Plain SGD diverged from torch.optim.SGD at step {t}.",
         )
 
-    # --- test 2: momentum + weight_decay matches torch.optim.SGD ---
+    # --- test 2: SGD with weight_decay matches torch.optim.SGD ---
     w0 = torch.tensor([0.25, -0.75, 1.5], dtype=dtype, requires_grad=True)
     w1 = w0.detach().clone().requires_grad_(True)
 
     lr = 0.05
-    momentum = 0.9
     weight_decay = 0.1
 
-    opt_candidate = candidate.SGD(
-        [w0], lr=lr, momentum=momentum, weight_decay=weight_decay
-    )
-    opt_torch = torch.optim.SGD(
-        [w1], lr=lr, momentum=momentum, weight_decay=weight_decay
-    )
+    opt_candidate = candidate.SGD([w0], lr=lr, weight_decay=weight_decay)
+    opt_torch = torch.optim.SGD([w1], lr=lr, weight_decay=weight_decay)
 
     for t in range(1, 11):
         loss0 = ((w0 - target) ** 2).sum()
@@ -83,7 +78,7 @@ def run_tests(candidate: ModuleType) -> None:
             w1,
             atol=0.0,
             rtol=0.0,
-            msg=f"Momentum/weight_decay SGD diverged from torch.optim.SGD at step {t}.",
+            msg=f"SGD with weight_decay diverged from torch.optim.SGD at step {t}.",
         )
 
     # --- test 3: grad=None params are skipped ---
@@ -92,8 +87,8 @@ def run_tests(candidate: ModuleType) -> None:
     b0 = torch.tensor([5.0], dtype=dtype, requires_grad=False)  # grad stays None
     b1 = b0.detach().clone().requires_grad_(False)
 
-    opt_candidate = candidate.SGD([a0, b0], lr=0.01, momentum=0.9, weight_decay=0.1)
-    opt_torch = torch.optim.SGD([a1], lr=0.01, momentum=0.9, weight_decay=0.1)
+    opt_candidate = candidate.SGD([a0, b0], lr=0.01, weight_decay=0.1)
+    opt_torch = torch.optim.SGD([a1], lr=0.01, weight_decay=0.1)
 
     loss_a0 = (a0 - 2.0).pow(2).sum()
     loss_a1 = (a1 - 2.0).pow(2).sum()
