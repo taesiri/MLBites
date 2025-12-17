@@ -13,6 +13,7 @@ dependencies = [
     "python-multipart>=0.0.12",
     "ruff>=0.9.0",
     "torch>=2.2.0",
+    "scikit-learn>=1.8.0",
 ]
 
 [build-system]
@@ -21,3 +22,8 @@ build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/mlbites"]
+
+[dependency-groups]
+dev = [
+    "pytest>=9.0.2",
+]
