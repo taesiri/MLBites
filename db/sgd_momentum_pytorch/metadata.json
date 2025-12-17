@@ -1,0 +1,14 @@
+{
+    "title": "Implement SGD with Momentum",
+    "category": "Basics",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "optimization",
+        "sgd",
+        "momentum",
+        "optimizer"
+    ],
+    "difficulty": "Easy"
+}
+
