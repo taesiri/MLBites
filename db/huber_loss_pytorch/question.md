@@ -1,4 +1,4 @@
-# Implement Huber Loss
+# Huber Loss
 
 ## Problem
 Huber Loss is a loss function commonly used in regression that combines the best properties of Mean Squared Error (MSE) and Mean Absolute Error (MAE). For small errors, it behaves like MSE (quadratic), while for large errors it behaves like MAE (linear). This makes it more robust to outliers than MSE while remaining differentiable everywhere.

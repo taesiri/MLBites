@@ -70,3 +70,4 @@ class LinearProbe:
         # TODO: Return argmax of logits
         raise NotImplementedError
 
+

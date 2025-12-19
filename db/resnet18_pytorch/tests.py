@@ -145,3 +145,4 @@ def run_tests(candidate: ModuleType) -> None:
         "Different inputs should produce different outputs"
     )
 
+

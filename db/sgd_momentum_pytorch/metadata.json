@@ -1,5 +1,5 @@
 {
-    "title": "Implement SGD with Momentum",
+    "title": "SGD with Momentum",
     "category": "Basics",
     "framework": "pytorch",
     "tags": [
@@ -11,4 +11,5 @@
     ],
     "difficulty": "Easy"
 }
+
 

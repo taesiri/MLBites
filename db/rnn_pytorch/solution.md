@@ -61,3 +61,4 @@ k = \frac{1}{\sqrt{hidden\_size}}
 - Initializing weights with wrong distribution (should match PyTorch's uniform `[-k, k]`).
 - Processing sequence in wrong order (should iterate from `t=0` to `t=seq_len-1`).
 
+

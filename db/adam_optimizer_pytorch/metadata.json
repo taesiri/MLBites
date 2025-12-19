@@ -1,5 +1,5 @@
 {
-    "title": "Implement Adam Optimizer",
+    "title": "Adam Optimizer",
     "category": "Basics",
     "framework": "pytorch",
     "tags": [

@@ -48,3 +48,4 @@ class SGDMomentum:
             # Update parameter: p = p - lr * v
             p.add_(v, alpha=-self.lr)
 
+

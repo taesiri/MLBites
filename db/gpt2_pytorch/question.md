@@ -1,4 +1,4 @@
-# Implement GPT-2 from Scratch
+# GPT-2 from Scratch
 
 ## Problem
 GPT-2 is a decoder-only Transformer that uses causal (masked) self-attention to generate text. It consists of token and positional embeddings, stacked Transformer blocks (each with layer normalization, causal multi-head attention, and an MLP with GELU activation), and a final language modeling head.
@@ -136,4 +136,5 @@ x = torch.randn(2, 5, 16)
 y = mlp(x)
 print(y.shape)  # torch.Size([2, 5, 16])
 ```
+
 

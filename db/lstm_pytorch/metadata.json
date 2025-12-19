@@ -1,5 +1,5 @@
 {
-  "title": "Implement LSTM from Scratch",
+  "title": "LSTM from Scratch",
   "category": "Recurrent Networks",
   "framework": "pytorch",
   "tags": [
@@ -11,4 +11,5 @@
   ],
   "difficulty": "Medium"
 }
+
 

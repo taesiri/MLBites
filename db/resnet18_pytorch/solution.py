@@ -110,3 +110,4 @@ class ResNet18(nn.Module):
 
         return x
 
+

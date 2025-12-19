@@ -55,3 +55,4 @@ class RNN:
         # TODO: stack outputs and return (output, h_n with leading dim of 1)
         raise NotImplementedError
 
+

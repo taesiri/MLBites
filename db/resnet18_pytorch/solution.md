@@ -31,3 +31,4 @@
 - Hardcoding spatial sizes instead of using `AdaptiveAvgPool2d`.
 - Forgetting to call `super().__init__()` in constructors.
 
+

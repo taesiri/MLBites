@@ -98,3 +98,4 @@ assert (modalities[:50] == 0).all()  # First 50 are images
 assert (modalities[50:] == 1).all()  # Last 30 are texts
 ```
 
+

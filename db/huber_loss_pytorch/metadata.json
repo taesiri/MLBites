@@ -1,5 +1,5 @@
 {
-    "title": "Implement Huber Loss",
+    "title": "Huber Loss",
     "category": "Loss Functions",
     "framework": "pytorch",
     "tags": [
@@ -10,4 +10,5 @@
     ],
     "difficulty": "Easy"
 }
+
 

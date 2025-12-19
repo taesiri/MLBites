@@ -147,3 +147,4 @@ def run_tests(candidate: ModuleType) -> None:
         if param.grad is None:
             raise AssertionError(f"Parameter {name} has no gradient after backward pass")
 
+

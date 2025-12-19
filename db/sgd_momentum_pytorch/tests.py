@@ -177,3 +177,4 @@ def run_tests(candidate: ModuleType) -> None:
         msg="Zero momentum should match vanilla SGD.",
     )
 
+

@@ -120,3 +120,4 @@ def run_tests(candidate: ModuleType) -> None:
     assert coords_single.shape == (2, 2), f"Expected shape (2, 2), got {coords_single.shape}"
     assert list(mod_single) == [0, 1], f"Expected [0, 1], got {list(mod_single)}"
 
+

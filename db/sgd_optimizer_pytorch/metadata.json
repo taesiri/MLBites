@@ -1,5 +1,5 @@
 {
-    "title": "Implement SGD Optimizer",
+    "title": "SGD Optimizer",
     "category": "Basics",
     "framework": "pytorch",
     "tags": [

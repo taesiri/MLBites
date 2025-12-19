@@ -1,5 +1,5 @@
 {
-  "title": "Implement GPT-2 from Scratch",
+  "title": "GPT-2 from Scratch",
   "category": "Transformers",
   "framework": "pytorch",
   "tags": [
@@ -12,4 +12,5 @@
   ],
   "difficulty": "Hard"
 }
+
 

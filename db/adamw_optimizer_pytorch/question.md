@@ -1,4 +1,4 @@
-# Implement AdamW Optimizer
+# AdamW Optimizer
 
 ## Problem
 AdamW is a variant of Adam that uses **decoupled weight decay**. Instead of adding an L2 term into the gradient (like classic weight decay), AdamW applies weight decay directly to the parameters as a separate step.
@@ -56,5 +56,6 @@ If `weight_decay > 0`, then each step should include an in-place shrink:
 
 ### Example 2 (matches PyTorch)
 For deterministic tensors and gradients, your `AdamW.step()` should match `torch.optim.AdamW` step-by-step.
+
 
 

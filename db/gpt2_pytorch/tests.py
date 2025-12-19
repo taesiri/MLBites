@@ -172,3 +172,4 @@ def run_tests(candidate: ModuleType) -> None:
     logits_single = model(idx_single)
     _assert_shape(logits_single, (1, 1, 100), "Single token input shape mismatch")
 
+

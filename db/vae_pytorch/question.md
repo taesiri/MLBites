@@ -1,4 +1,4 @@
-# Implement a Simple VAE
+# a Simple VAE
 
 ## Problem
 A Variational Autoencoder (VAE) is a generative model that learns a latent representation of data. It consists of an encoder that maps inputs to a latent distribution, a reparameterization trick that enables backpropagation through sampling, and a decoder that reconstructs the input from the latent space.
@@ -89,4 +89,5 @@ logvar = torch.zeros(2, 3)  # std=1, so KL = 0
 loss = vae_loss(recon_x, x, mu, logvar)
 # loss == 0.0 (no reconstruction error, KL = 0)
 ```
+
 

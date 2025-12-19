@@ -1,5 +1,5 @@
 {
-    "title": "Implement KL Divergence Loss",
+    "title": "KL Divergence Loss",
     "category": "Loss Functions",
     "framework": "pytorch",
     "tags": [
@@ -10,4 +10,5 @@
     ],
     "difficulty": "Easy"
 }
+
 

@@ -1,4 +1,4 @@
-# Implement SGD with Momentum
+# SGD with Momentum
 
 ## Problem
 Momentum is a simple yet powerful enhancement to vanilla Stochastic Gradient Descent. Instead of updating parameters using only the current gradient, momentum accumulates a "velocity" that smooths updates and helps escape shallow local minima.
@@ -67,4 +67,5 @@ With `momentum=0.9`, if the gradient stays the same direction over multiple step
 # Step 3: v = 1.9g*0.9 + g = 2.71g, update = -lr * 2.71g
 ```
 This acceleration effect helps converge faster in consistent gradient directions.
+
 

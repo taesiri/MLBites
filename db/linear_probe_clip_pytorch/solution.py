@@ -73,3 +73,4 @@ class LinearProbe:
         logits = self.linear(features)
         return logits.argmax(dim=1)
 
+

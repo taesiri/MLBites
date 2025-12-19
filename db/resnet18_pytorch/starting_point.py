@@ -97,3 +97,4 @@ class ResNet18(nn.Module):
         # TODO: apply avgpool -> flatten -> fc
         raise NotImplementedError
 
+

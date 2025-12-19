@@ -1,4 +1,4 @@
-# Implement Adam Optimizer
+# Adam Optimizer
 
 ## Problem
 Adam is one of the most commonly used optimizers for training neural networks. In PyTorch, optimizers update parameters based on their gradients and keep running statistics (momentum + second moment).

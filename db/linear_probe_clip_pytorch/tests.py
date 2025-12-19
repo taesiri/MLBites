@@ -125,3 +125,4 @@ def run_tests(candidate: ModuleType) -> None:
     assert delta1 < 1.0, f"First update too large: {delta1}"
     assert delta2 < 1.0, f"Second update too large: {delta2}"
 
+

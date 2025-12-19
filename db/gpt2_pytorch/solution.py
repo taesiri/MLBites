@@ -201,3 +201,4 @@ class GPT2(nn.Module):
         logits = self.lm_head(x)  # (B, T, vocab_size)
         return logits
 
+

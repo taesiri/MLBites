@@ -1,5 +1,5 @@
 {
-    "title": "Implement LeNet-5",
+    "title": "LeNet-5",
     "category": "Neural Networks",
     "framework": "pytorch",
     "tags": [
@@ -12,4 +12,5 @@
     "difficulty": "Easy",
     "relevant_questions": []
 }
+
 

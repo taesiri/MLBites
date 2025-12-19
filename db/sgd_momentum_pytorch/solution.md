@@ -34,3 +34,4 @@
 5. **Missing `@torch.no_grad()`** — without it, updates would be tracked by autograd, wasting memory and computation.
 6. **Using wrong tensor ops** — `mul_` and `add_` are in-place; using `mul` and `add` would create new tensors and break updates.
 
+

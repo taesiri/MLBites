@@ -1,5 +1,5 @@
 {
-    "title": "Implement Basic RNN from Scratch",
+    "title": "Basic RNN from Scratch",
     "category": "Basics",
     "framework": "pytorch",
     "tags": [
@@ -12,4 +12,5 @@
     "difficulty": "Medium",
     "relevant_questions": []
 }
+
 

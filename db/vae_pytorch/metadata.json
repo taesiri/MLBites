@@ -1,5 +1,5 @@
 {
-    "title": "Implement a Simple VAE",
+    "title": "a Simple VAE",
     "category": "Deep Learning",
     "framework": "pytorch",
     "tags": [
@@ -13,4 +13,5 @@
     "difficulty": "Medium",
     "relevant_questions": []
 }
+
 

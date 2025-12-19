@@ -23,3 +23,4 @@ Common Pitfalls
 - Forgetting `.contiguous()` before `.view()` after a transpose.
 
 
+

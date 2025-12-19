@@ -1,4 +1,4 @@
-# Implement Basic RNN from Scratch
+# Basic RNN from Scratch
 
 ## Problem
 
@@ -92,4 +92,5 @@ output, h_n = rnn(x, h0)
 # output.shape == (3, 2, 4)
 # h_n.shape == (1, 2, 4)
 ```
+
 

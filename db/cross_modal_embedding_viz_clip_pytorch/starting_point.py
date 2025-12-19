@@ -57,3 +57,4 @@ class CrossModalVisualizer:
         # TODO: Return 2D coords and modality labels
         raise NotImplementedError
 
+

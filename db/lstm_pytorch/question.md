@@ -1,4 +1,4 @@
-# Implement LSTM from Scratch
+# LSTM from Scratch
 
 ## Problem
 Long Short-Term Memory (LSTM) is a recurrent neural network architecture designed to learn long-term dependencies. Unlike vanilla RNNs, LSTMs use gating mechanisms (forget, input, output gates) to control information flow, addressing the vanishing gradient problem.
@@ -79,4 +79,5 @@ output, (h_n, c_n) = lstm(x, hx=(h_0, c_0))
 # output[:, -1, :] should equal h_n
 print(torch.allclose(output[:, -1, :], h_n))  # True
 ```
+
 

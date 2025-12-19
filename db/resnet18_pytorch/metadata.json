@@ -1,5 +1,5 @@
 {
-    "title": "Implement ResNet-18",
+    "title": "ResNet-18",
     "category": "Neural Networks",
     "framework": "pytorch",
     "tags": [
@@ -13,4 +13,5 @@
     "difficulty": "Medium",
     "relevant_questions": []
 }
+
 

@@ -118,3 +118,4 @@ def run_tests(candidate: ModuleType) -> None:
     if not hasattr(loss_fn, "forward"):
         raise AssertionError("Test 10 failed: KLDivLoss must have a forward method")
 
+

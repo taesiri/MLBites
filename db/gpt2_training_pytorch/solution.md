@@ -45,3 +45,4 @@
 5. **Forgetting `optimizer.zero_grad()`** — gradients accumulate across steps.
 6. **Not calling `model.train()`** — dropout (if present) wouldn't be applied correctly.
 
+

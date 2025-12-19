@@ -102,3 +102,4 @@ def vae_loss(
     # TODO: Return total loss
     raise NotImplementedError
 
+

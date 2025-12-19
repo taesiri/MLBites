@@ -53,3 +53,4 @@ where \(z_i = \mathbf{x}_i \mathbf{W}^\top + \mathbf{b}\).
 - Confusing `dim=1` vs `dim=-1` in `argmax` (both work for 2D, but be explicit).
 - Forgetting `@torch.no_grad()` in predict (wastes memory on inference).
 
+

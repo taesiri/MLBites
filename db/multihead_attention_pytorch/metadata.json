@@ -1,5 +1,5 @@
 {
-  "title": "Implement Multi-Head Self-Attention",
+  "title": "Multi-Head Self-Attention",
   "category": "Transformers",
   "framework": "pytorch",
   "tags": [
@@ -13,5 +13,6 @@
   "difficulty": "Medium",
   "relevant_questions": []
 }
+
 
 

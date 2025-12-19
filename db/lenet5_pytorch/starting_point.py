@@ -49,3 +49,4 @@ class LeNet5(nn.Module):
         # TODO: apply fc3
         raise NotImplementedError
 
+

@@ -26,3 +26,4 @@
 - Forgetting to apply ReLU between layers.
 - Confusing kernel_size with other conv parameters (padding, stride).
 
+

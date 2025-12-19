@@ -1,4 +1,4 @@
-# Implement KV Cache in Multi-Head Attention
+# KV Cache in Multi-Head Attention
 
 ## Problem
 During autoregressive text generation (e.g., GPT-style models), tokens are generated one at a time. Naively recomputing attention over the entire sequence for each new token is inefficient because the keys and values for previous tokens don't change. KV caching stores these previously computed key/value tensors so they can be reused, reducing the per-token computation from O(T²) to O(T).
@@ -95,4 +95,5 @@ out3, cache = m(x_full[:, 3:4, :], kv_cache=cache)  # 4th token
 out_incremental = torch.cat([out1, out2, out3], dim=1)
 print(torch.allclose(out_full[:, -1:, :], out_incremental[:, -1:, :], atol=1e-5))  # True
 ```
+
 

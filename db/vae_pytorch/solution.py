@@ -80,3 +80,4 @@ def vae_loss(
 
     return recon_loss + kl_loss
 
+

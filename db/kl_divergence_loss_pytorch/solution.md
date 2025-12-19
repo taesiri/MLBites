@@ -42,3 +42,4 @@ D_{KL} = \sum_{i} \text{target}_i \cdot \left( \log(\text{target}_i) - \text{inp
 - Confusing `"mean"` and `"batchmean"`: `"batchmean"` divides by batch size, while `"mean"` divides by total number of elements.
 - Forgetting to call `super().__init__()` in the constructor.
 
+

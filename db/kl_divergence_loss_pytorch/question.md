@@ -1,4 +1,4 @@
-# Implement KL Divergence Loss
+# KL Divergence Loss
 
 ## Problem
 Kullback-Leibler (KL) Divergence is a measure of how one probability distribution differs from a reference probability distribution. It is widely used in machine learning for tasks such as variational autoencoders (VAEs), knowledge distillation, and regularization. KL divergence is asymmetric: \( D_{KL}(P \| Q) \neq D_{KL}(Q \| P) \).
@@ -73,4 +73,5 @@ loss_fn = KLDivLoss(reduction="none")
 loss = loss_fn(input, target)
 # expected: tensor([[0.0, 0.0], [0.3466, -0.2027]])
 ```
+
 
