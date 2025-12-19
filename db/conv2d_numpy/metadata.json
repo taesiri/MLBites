@@ -1,0 +1,15 @@
+{
+    "title": "Conv2D Layer Forward Pass",
+    "category": "Basics",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "convolution",
+        "conv2d",
+        "cnn",
+        "forward-pass",
+        "deep-learning"
+    ],
+    "difficulty": "Medium"
+}
+

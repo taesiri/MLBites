@@ -1,0 +1,16 @@
+{
+    "title": "Batch Normalization Forward and Backward Pass",
+    "category": "Basics",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "batch-normalization",
+        "normalization",
+        "forward-pass",
+        "backward-pass",
+        "gradient"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": []
+}
+

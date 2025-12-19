@@ -1,0 +1,16 @@
+{
+    "title": "K-Means Clustering",
+    "category": "Basics",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "kmeans",
+        "clustering",
+        "unsupervised-learning",
+        "assignment",
+        "centroid"
+    ],
+    "difficulty": "Easy"
+}
+
+

@@ -1,0 +1,17 @@
+{
+    "title": "Softmax + Cross-Entropy Loss (Numerically Stable)",
+    "category": "Basics",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "softmax",
+        "cross-entropy",
+        "loss-function",
+        "numerical-stability",
+        "classification"
+    ],
+    "difficulty": "Easy",
+    "relevant_questions": []
+}
+
+

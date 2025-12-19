@@ -1,0 +1,14 @@
+{
+  "title": "Layer Normalization",
+  "category": "Basics",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "layer-normalization",
+    "normalization",
+    "transformers",
+    "neural-networks"
+  ],
+  "difficulty": "Easy"
+}
+

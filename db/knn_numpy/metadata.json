@@ -1,0 +1,15 @@
+{
+    "title": "K-Nearest Neighbors Classifier",
+    "category": "Basics",
+    "framework": "numpy",
+    "tags": [
+        "numpy",
+        "knn",
+        "classification",
+        "supervised-learning",
+        "distance"
+    ],
+    "difficulty": "Easy"
+}
+
+

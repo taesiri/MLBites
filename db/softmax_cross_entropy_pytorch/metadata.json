@@ -1,0 +1,17 @@
+{
+    "title": "Softmax, LogSoftmax, and CrossEntropy",
+    "category": "Loss Functions",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "loss-function",
+        "softmax",
+        "cross-entropy",
+        "numerical-stability"
+    ],
+    "difficulty": "Medium",
+    "relevant_questions": [
+        "softmax_cross_entropy_numpy",
+        "kl_divergence_loss_pytorch"
+    ]
+}

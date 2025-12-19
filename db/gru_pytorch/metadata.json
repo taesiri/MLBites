@@ -1,0 +1,15 @@
+{
+  "title": "GRU from Scratch",
+  "category": "Recurrent Networks",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "gru",
+    "recurrent-networks",
+    "sequence-modeling",
+    "gates"
+  ],
+  "difficulty": "Medium"
+}
+
+

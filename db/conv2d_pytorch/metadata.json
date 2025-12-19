@@ -1,0 +1,14 @@
+{
+  "title": "Conv2D Layer",
+  "category": "Basics",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "convolution",
+    "cnn",
+    "neural-networks",
+    "deep-learning"
+  ],
+  "difficulty": "Medium"
+}
+
