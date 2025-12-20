@@ -47,3 +47,5 @@ where \( N_k(x_i) \) is the set of indices of the k nearest training points to \
 - Not sorting the distance matrix correctly (sorting along wrong axis).
 
 
+
+

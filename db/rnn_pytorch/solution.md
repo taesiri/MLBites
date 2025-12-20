@@ -62,3 +62,5 @@ k = \frac{1}{\sqrt{hidden\_size}}
 - Processing sequence in wrong order (should iterate from `t=0` to `t=seq_len-1`).
 
 
+
+

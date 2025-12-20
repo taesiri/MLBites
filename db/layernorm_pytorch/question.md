@@ -84,3 +84,5 @@ out = layer_norm(x)
 # Each of the 6 vectors of length 4 is independently normalized
 ```
 
+
+

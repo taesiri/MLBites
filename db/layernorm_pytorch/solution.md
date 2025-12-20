@@ -53,3 +53,5 @@ where \(\gamma\) (weight) and \(\beta\) (bias) are learnable parameters of shape
 - Using biased vs unbiased variance — LayerNorm uses the population variance (biased, N divisor).
 - Forgetting to register weight and bias as `nn.Parameter` so they're trainable.
 
+
+

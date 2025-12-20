@@ -54,3 +54,5 @@ where \(z_i = \mathbf{x}_i \mathbf{W}^\top + \mathbf{b}\).
 - Forgetting `@torch.no_grad()` in predict (wastes memory on inference).
 
 
+
+

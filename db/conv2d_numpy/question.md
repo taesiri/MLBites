@@ -109,3 +109,5 @@ out = conv2d_forward(x, weight, bias=bias)
 # out[:, 1, :, :] = 12 - 1 = 11
 ```
 
+
+

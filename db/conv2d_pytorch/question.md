@@ -96,3 +96,5 @@ out = conv(x)
 # out has shape (4, 8, 28, 28) — same spatial size due to padding=2 with kernel=5
 ```
 
+
+

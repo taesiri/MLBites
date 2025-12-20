@@ -49,3 +49,5 @@ The best split minimizes \(G_{\text{weighted}}\).
 - Off-by-one errors when the threshold equals the maximum feature value (right child becomes empty).
 
 
+
+

@@ -45,3 +45,5 @@ Where:
 - Incorrect chunking order when splitting gates—PyTorch's built-in GRU uses (r, z) ordering.
 
 
+
+

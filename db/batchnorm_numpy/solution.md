@@ -89,3 +89,5 @@ Given upstream gradient \(\frac{\partial L}{\partial y}\):
 - Forgetting the \(2/N\) factor in the variance gradient or \(1/N\) factor in the mean gradient.
 - Off-by-one errors in the variance formula (using \(N-1\) instead of \(N\) — we use population variance here).
 
+
+

@@ -47,3 +47,5 @@ t-SNE and UMAP are the two most popular methods for embedding visualization:
 - Mixing up the order of concatenation (images vs. text first affects label interpretation).
 
 
+
+

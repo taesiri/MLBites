@@ -50,3 +50,5 @@ W_{\text{out}} = \frac{W + 2 \cdot \text{padding} - kW}{\text{stride}} + 1
 - **Summing over wrong axes**: Forgetting to sum over input channels when computing the output.
 - **Bias shape mismatch**: Not properly broadcasting the bias to match the output spatial dimensions.
 
+
+

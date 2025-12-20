@@ -43,3 +43,5 @@ def batchnorm_backward(
     """
     raise NotImplementedError
 
+
+

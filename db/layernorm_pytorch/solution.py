@@ -46,3 +46,5 @@ class LayerNorm(nn.Module):
         # Apply learnable scale and shift
         return self.weight * x_norm + self.bias
 
+
+

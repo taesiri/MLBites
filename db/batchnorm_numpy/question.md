@@ -109,3 +109,5 @@ dx, dgamma, dbeta = batchnorm_backward(dout, cache)
 # dx should have each column sum to ≈ 0
 ```
 
+
+

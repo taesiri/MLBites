@@ -94,3 +94,5 @@ new_centroids = update_centroids(X, assignments, k=2)
 ```
 
 
+
+

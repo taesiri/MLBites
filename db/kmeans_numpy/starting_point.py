@@ -30,3 +30,5 @@ def update_centroids(X: np.ndarray, assignments: np.ndarray, k: int) -> np.ndarr
     raise NotImplementedError
 
 
+
+

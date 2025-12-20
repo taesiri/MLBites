@@ -102,3 +102,5 @@ def batchnorm_backward(
 
     return dx, dgamma, dbeta
 
+
+

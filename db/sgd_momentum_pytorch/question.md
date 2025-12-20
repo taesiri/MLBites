@@ -69,3 +69,5 @@ With `momentum=0.9`, if the gradient stays the same direction over multiple step
 This acceleration effect helps converge faster in consistent gradient directions.
 
 
+
+
