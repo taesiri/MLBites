@@ -1,0 +1,17 @@
+{
+  "title": "UpsampleConv2D Layer",
+  "category": "Basics",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "convolution",
+    "upsampling",
+    "cnn",
+    "generative-models",
+    "deep-learning"
+  ],
+  "difficulty": "Medium"
+}
+
+
+

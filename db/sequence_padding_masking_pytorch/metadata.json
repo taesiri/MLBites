@@ -1,0 +1,17 @@
+{
+  "title": "Sequence Padding and Masking for Transformers",
+  "category": "Transformers",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "transformers",
+    "padding",
+    "masking",
+    "attention",
+    "sequences"
+  ],
+  "difficulty": "Easy"
+}
+
+
+

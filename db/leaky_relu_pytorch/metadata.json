@@ -1,0 +1,15 @@
+{
+    "title": "Leaky ReLU Activation Function",
+    "category": "Activation Functions",
+    "framework": "pytorch",
+    "tags": [
+        "pytorch",
+        "activation-function",
+        "leaky-relu",
+        "neural-networks"
+    ],
+    "difficulty": "Easy"
+}
+
+
+

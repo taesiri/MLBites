@@ -1,0 +1,16 @@
+{
+  "title": "Vision Transformer Patch Projection Layer",
+  "category": "Transformers",
+  "framework": "pytorch",
+  "tags": [
+    "pytorch",
+    "transformers",
+    "vision-transformer",
+    "patch-embedding",
+    "projection"
+  ],
+  "difficulty": "Easy"
+}
+
+
+
