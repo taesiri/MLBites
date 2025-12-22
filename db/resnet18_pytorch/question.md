@@ -7,21 +7,8 @@ ResNet (Residual Network) revolutionized deep learning by introducing skip conne
 Implement ResNet-18 as a PyTorch `nn.Module`. The network should accept 224×224 RGB images and output class logits for a configurable number of classes (default 1000 for ImageNet).
 
 You need to implement:
-1. **BasicBlock**: A residual block with two 3×3 convolutions and a skip connection
+1. **BasicBlock**: A residual block with skip connection support
 2. **ResNet18**: The full network using BasicBlocks
-
-### BasicBlock Structure
-- Conv(3×3) → BatchNorm → ReLU → Conv(3×3) → BatchNorm
-- Add skip connection (with optional downsample for dimension matching)
-- Final ReLU
-
-### ResNet-18 Architecture
-1. **Initial**: Conv(7×7, stride=2, 64 filters) → BatchNorm → ReLU → MaxPool(3×3, stride=2)
-2. **Layer 1**: 2 BasicBlocks with 64 filters
-3. **Layer 2**: 2 BasicBlocks with 128 filters (first block stride=2)
-4. **Layer 3**: 2 BasicBlocks with 256 filters (first block stride=2)
-5. **Layer 4**: 2 BasicBlocks with 512 filters (first block stride=2)
-6. **Output**: AdaptiveAvgPool → Flatten → FC(512 → num_classes)
 
 ## Function Signature
 

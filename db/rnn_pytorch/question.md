@@ -2,20 +2,14 @@
 
 ## Problem
 
-A Recurrent Neural Network (RNN) processes sequential data by maintaining a hidden state that gets updated at each timestep. The vanilla (Elman) RNN uses a simple recurrence relation:
-
-\[
-h_t = \tanh(W_{ih} \cdot x_t + b_{ih} + W_{hh} \cdot h_{t-1} + b_{hh})
-\]
-
-Your task is to implement this basic RNN layer from scratch in PyTorch, matching the behavior of `torch.nn.RNN`.
+A Recurrent Neural Network (RNN) processes sequential data by maintaining a hidden state that gets updated at each timestep. Your task is to implement a basic RNN layer from scratch in PyTorch, matching the behavior of `torch.nn.RNN`.
 
 ## Task
 
 Implement a minimal `RNN` class that:
 - Takes input of shape `(seq_len, batch, input_size)` and optional initial hidden state
-- Maintains learnable weight matrices and biases
-- Processes the sequence one timestep at a time using the tanh activation
+- Maintains learnable parameters
+- Processes the sequence one timestep at a time
 - Returns the output sequence and the final hidden state
 
 ## Function Signature
@@ -53,7 +47,6 @@ class RNN:
 - Interview-friendly: no need to subclass `torch.nn.Module`.
 - Assume inputs satisfy the documented contract; avoid extra validation.
 - Allowed libs: PyTorch (`torch`) and Python standard library.
-- Initialize weights using uniform distribution in range `[-k, k]` where `k = 1/sqrt(hidden_size)`, matching PyTorch's default initialization.
 
 ## Examples
 

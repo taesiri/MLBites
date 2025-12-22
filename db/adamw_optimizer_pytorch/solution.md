@@ -1,17 +1,8 @@
 ## Mathematical Background
 
-AdamW is a variant of Adam that fixes weight decay regularization. In the original Adam paper, weight decay was implemented as L2 regularization (adding \(\lambda \theta\) to the gradient), but this interacts poorly with adaptive learning rates. AdamW instead applies **decoupled weight decay** directly to the parameters.
+AdamW (Adam with Weight Decay) extends Adam by decoupling weight decay from the gradient update. The key difference is that weight decay is applied directly to the parameters rather than being added to the gradient.
 
-### Adam with L2 Regularization (Incorrect)
-
-The standard L2 approach modifies the gradient:
-\[
-g_t \leftarrow g_t + \lambda \theta_{t-1}
-\]
-
-This is problematic because the adaptive scaling in Adam reduces the effect of weight decay for parameters with large gradients.
-
-### AdamW Algorithm (Decoupled Weight Decay)
+### Algorithm
 
 **Initialize:**
 - First moment estimate: \( m_0 = 0 \)
@@ -30,49 +21,38 @@ t \leftarrow t + 1
 g_t = \nabla_\theta f(\theta_{t-1})
 \]
 
-3. **Apply decoupled weight decay:**
-\[
-\theta_{t-1} \leftarrow \theta_{t-1} \cdot (1 - \alpha \lambda)
-\]
-
-4. **Update biased first moment estimate:**
+3. **Update biased first moment estimate (momentum):**
 \[
 m_t = \beta_1 \cdot m_{t-1} + (1 - \beta_1) \cdot g_t
 \]
 
-5. **Update biased second moment estimate:**
+4. **Update biased second moment estimate (squared gradient):**
 \[
 v_t = \beta_2 \cdot v_{t-1} + (1 - \beta_2) \cdot g_t^2
 \]
 
-6. **Compute bias-corrected estimates:**
+5. **Compute bias-corrected estimates:**
 \[
 \hat{m}_t = \frac{m_t}{1 - \beta_1^t}, \quad \hat{v}_t = \frac{v_t}{1 - \beta_2^t}
 \]
 
-7. **Update parameters:**
+6. **Update parameters (AdamW style):**
 \[
-\theta_t = \theta_{t-1} - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon}
+\theta_t = \theta_{t-1} - \alpha \cdot \frac{\hat{m}_t}{\sqrt{\hat{v}_t} + \epsilon} - \alpha \cdot \lambda \cdot \theta_{t-1}
 \]
+
+where \( \lambda \) is the weight decay coefficient. The last term applies weight decay directly to the parameters, decoupled from the gradient-based update.
 
 ### PyTorch-Style Formulation
 
-PyTorch applies weight decay first, then computes the Adam update with fused bias correction:
+PyTorch fuses the bias correction into the step size for efficiency:
 
 \[
-\theta \leftarrow \theta \cdot (1 - \alpha \lambda)
+\eta_t = \frac{\alpha \cdot \sqrt{1 - \beta_2^t}}{1 - \beta_1^t}
 \]
 
 \[
-\eta_t = \frac{\alpha}{1 - \beta_1^t}
-\]
-
-\[
-d_t = \frac{\sqrt{v_t}}{\sqrt{1 - \beta_2^t}} + \epsilon
-\]
-
-\[
-\theta_t = \theta_{t-1} - \eta_t \cdot \frac{m_t}{d_t}
+\theta_t = \theta_{t-1} - \eta_t \cdot \frac{m_t}{\sqrt{v_t} + \epsilon} - \alpha \cdot \lambda \cdot \theta_{t-1}
 \]
 
 ### Default Hyperparameters
@@ -87,28 +67,31 @@ d_t = \frac{\sqrt{v_t}}{\sqrt{1 - \beta_2^t}} + \epsilon
 
 ## Approach
 
-- Keep per-parameter state buffers: `m` (first moment) and `v` (second moment).
+- Keep per-parameter state: first moment `m` and second moment `v`, initialized to zeros.
 - Maintain a step counter `t` starting at 0, incrementing once per `step()`.
-- For each parameter with gradient:
-  - Apply **decoupled weight decay**: `p *= (1 - α·λ)`.
+- On each `step()`, for every parameter `p` with gradient `g = p.grad`:
   - Update moments: `m = β₁·m + (1-β₁)·g`, `v = β₂·v + (1-β₂)·g²`.
-  - Bias correction (PyTorch ordering).
-  - Update: `p -= step_size · m / denom`.
+  - Apply PyTorch-style bias correction via the step size.
+  - Update in-place: `p -= step_size · m / (√v + ε)` (Adam update).
+  - Apply decoupled weight decay: `p -= lr · weight_decay · p`.
 
 ## Correctness
 
-- Weight decay is decoupled: it modifies parameters directly and does not change the gradient used for Adam's moment estimates.
-- Moment updates match Adam's EMA definitions, and bias correction matches PyTorch's scaling.
-- Parameters with `grad is None` are skipped, consistent with PyTorch optimizer behavior.
+- The moment updates match Adam's definitions for exponential moving averages.
+- Bias correction accounts for the fact that `m` and `v` start at zero, matching `torch.optim.AdamW`'s scaling.
+- Weight decay is applied directly to parameters (decoupled), not added to gradients.
+- Parameters with `grad is None` are skipped, consistent with typical PyTorch optimizer behavior.
 
 ## Complexity
 
-- **Time:** \( O\left(\sum_i |p_i|\right) \) per step.
+- **Time:** \( O\left(\sum_i |p_i|\right) \) per step (touch each parameter element a constant number of times).
 - **Space:** \( O\left(\sum_i |p_i|\right) \) for storing `m` and `v`.
 
 ## Common Pitfalls
 
-- Implementing classic L2 regularization (adding `λ·p` to the gradient) instead of decoupled decay.
-- Forgetting bias correction or applying it in a different order than PyTorch.
-- Applying weight decay to parameters that have `grad=None` (PyTorch skips those).
-- Confusing AdamW's `weight_decay` parameter with Adam's—they have different semantics.
+- Forgetting bias correction (or applying it in a way that doesn't match PyTorch's update).
+- Not using `torch.no_grad()` (accidentally building a graph during parameter updates).
+- Applying weight decay to gradients instead of directly to parameters (this would be Adam, not AdamW).
+- Failing to skip `grad=None` parameters.
+- Mixing up `β₁` and `β₂`, or updating `v` with `g` instead of `g²`.
+- Forgetting to apply weight decay even when gradient is zero.

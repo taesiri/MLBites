@@ -19,11 +19,7 @@ class SimpleLSTM(nn.Module):
             bias: If False, the layer does not use bias weights.
         """
         super().__init__()
-        # TODO: store input_size and hidden_size
-        # TODO: create linear layer for input-to-hidden: nn.Linear(input_size, 4 * hidden_size, bias=bias)
-        #       name it self.input_linear (projects input to 4 gates: i, f, g, o)
-        # TODO: create linear layer for hidden-to-hidden: nn.Linear(hidden_size, 4 * hidden_size, bias=bias)
-        #       name it self.hidden_linear
+        # TODO: initialize the necessary layers
         raise NotImplementedError
 
     def forward(
@@ -42,19 +38,7 @@ class SimpleLSTM(nn.Module):
             output: Tensor of shape (B, T, hidden_size) — hidden states at each timestep.
             (h_n, c_n): Tuple of final hidden state and cell state.
         """
-        # TODO: get B, T, _ from x.shape
-        # TODO: initialize h_t and c_t (from hx or zeros)
-        # TODO: create list to collect hidden states
-        # TODO: loop over timesteps t = 0 to T-1:
-        #       - x_t = x[:, t, :]
-        #       - gates = self.input_linear(x_t) + self.hidden_linear(h_t)
-        #       - split gates into i, f, g, o (each of size hidden_size)
-        #       - i = sigmoid(i), f = sigmoid(f), o = sigmoid(o), g = tanh(g)
-        #       - c_t = f * c_t + i * g
-        #       - h_t = o * tanh(c_t)
-        #       - append h_t to output list
-        # TODO: stack outputs -> (B, T, hidden_size)
-        # TODO: return output, (h_t, c_t)
+        # TODO: implement the forward pass
         raise NotImplementedError
 
 

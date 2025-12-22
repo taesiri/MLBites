@@ -1,5 +1,8 @@
 # Solution: Implement LSTM from Scratch
 
+## Overview
+Long Short-Term Memory (LSTM) is a recurrent neural network architecture designed to learn long-term dependencies. Unlike vanilla RNNs, LSTMs use gating mechanisms (forget, input, output gates) to control information flow, addressing the vanishing gradient problem.
+
 ## Approach
 - Create two linear layers: one for input-to-hidden projection (`input_linear`) and one for hidden-to-hidden projection (`hidden_linear`), each projecting to `4 * hidden_size` to compute all four gates (i, f, g, o) in one pass.
 - Initialize hidden state `h_t` and cell state `c_t` to zeros if not provided.

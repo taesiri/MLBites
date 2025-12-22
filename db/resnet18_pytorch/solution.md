@@ -1,4 +1,22 @@
 ## Approach
+
+### BasicBlock Structure
+- Conv(3×3) → BatchNorm → ReLU → Conv(3×3) → BatchNorm
+- Add skip connection (with optional downsample for dimension matching)
+- Final ReLU
+- The skip connection either:
+  - Directly adds input (if in_channels == out_channels and stride == 1)
+  - Applies 1×1 conv + BN to match dimensions (otherwise)
+
+### ResNet-18 Architecture
+1. **Initial**: Conv(7×7, stride=2, 64 filters) → BatchNorm → ReLU → MaxPool(3×3, stride=2)
+2. **Layer 1**: 2 BasicBlocks with 64 filters
+3. **Layer 2**: 2 BasicBlocks with 128 filters (first block stride=2)
+4. **Layer 3**: 2 BasicBlocks with 256 filters (first block stride=2)
+5. **Layer 4**: 2 BasicBlocks with 512 filters (first block stride=2)
+6. **Output**: AdaptiveAvgPool → Flatten → FC(512 → num_classes)
+
+### Implementation Details
 - Implement `BasicBlock` as the core building block with two 3×3 convolutions and a skip connection.
 - Each conv is followed by BatchNorm; ReLU is applied after bn1 and after adding the skip.
 - Skip connection uses 1×1 conv + BN when dimensions change (stride > 1 or channel mismatch).

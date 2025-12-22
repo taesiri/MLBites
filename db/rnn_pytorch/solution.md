@@ -28,17 +28,28 @@ k = \frac{1}{\sqrt{hidden\_size}}
 
 ## Approach
 
+### Initialization (`__init__`)
+
 - Store `input_size` and `hidden_size` for later use.
-- Initialize four learnable parameters (`W_ih`, `W_hh`, `b_ih`, `b_hh`) using uniform distribution in `[-k, k]`.
-- In `__call__`:
-  - If `h0` is `None`, initialize hidden state to zeros.
-  - Squeeze `h0` from shape `(1, batch, hidden_size)` to `(batch, hidden_size)`.
-  - Loop through each timestep `t`:
-    - Extract `x_t = x[t]` of shape `(batch, input_size)`.
-    - Compute `h = tanh(x_t @ W_ih.T + b_ih + h @ W_hh.T + b_hh)`.
-    - Append `h` to outputs list.
-  - Stack outputs to get shape `(seq_len, batch, hidden_size)`.
-  - Unsqueeze final `h` to get `h_n` of shape `(1, batch, hidden_size)`.
+- Initialize four learnable parameters using uniform distribution in `[-k, k]` where `k = 1/sqrt(hidden_size)`:
+  - `W_ih`: weight matrix for input-to-hidden, shape `(hidden_size, input_size)`
+  - `W_hh`: weight matrix for hidden-to-hidden, shape `(hidden_size, hidden_size)`
+  - `b_ih`: bias for input-to-hidden, shape `(hidden_size,)`
+  - `b_hh`: bias for hidden-to-hidden, shape `(hidden_size,)`
+- Make all parameters require gradients (use `requires_grad_(True)` or wrap in `nn.Parameter`).
+
+### Forward Pass (`__call__`)
+
+- Extract `seq_len` and `batch` from `x.shape`.
+- If `h0` is `None`, initialize hidden state to zeros of shape `(batch, hidden_size)`.
+- Otherwise, squeeze `h0` from shape `(1, batch, hidden_size)` to `(batch, hidden_size)`.
+- Loop through each timestep `t` from `0` to `seq_len-1`:
+  - Extract `x_t = x[t]` of shape `(batch, input_size)`.
+  - Compute new hidden state: `h = tanh(x_t @ W_ih.T + b_ih + h @ W_hh.T + b_hh)`.
+  - Append `h` to outputs list.
+- Stack outputs to get shape `(seq_len, batch, hidden_size)`.
+- Unsqueeze final `h` to get `h_n` of shape `(1, batch, hidden_size)`.
+- Return `(output, h_n)`.
 
 ## Correctness
 
